@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee of the Month Consulting</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Bold, Modern UI with Gradient Sections */
+        :root {
+            --purple-dark: #2e0d56;
+            --purple-light: #5a2ca0;
+            --teal: #0c9d92;
+            --teal-light: #24d1c4;
+            --orange: #ff7d54;
+            --coral: #ff5672;
+            --dark-blue: #091e42;
+            --light: #ffffff;
+            --gray: #f4f4f8;
+            --gray-dark: #a0a0a0;
+            --font-heading: 'Inter', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --gradient-main: linear-gradient(135deg, var(--purple-dark) 0%, var(--purple-light) 100%);
+            --gradient-accent: linear-gradient(90deg, var(--orange) 0%, var(--coral) 100%);
+            --gradient-teal: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
+            --gradient-rainbow: linear-gradient(90deg, #ff9966, #ff5e62, #a651ff, #6a82fb, #05d5ff, #0fd850);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-body);
+            color: #222;
+            line-height: 1.5;
+            overflow-x: hidden;
+            background-color: var(--light);
+        }
+        
+        h1, h2, h3, h4, h5 {
+            font-family: var(--font-heading);
+            font-weight: 800;
+            line-height: 1.2;
+        }
+        
+        p {
+            font-size: 1.125rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .section {
+            padding: 0;
+            position: relative;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 32px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 94, 98, 0.3);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Header */
+        .header {
+            background: var(--gradient-main);
+            color: white;
+            padding: 160px 0 100px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .color-bar {
+            height: 8px;
+            width: 100%;
+            background: var(--gradient-rainbow);
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .logo {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: white;
+            text-decoration: none;
+            z-index: 10;
+        }
+        
+        .main-heading {
+            font-size: clamp(3rem, 8vw, 5rem);
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+        
+        .main-heading .asterisk {
+            color: var(--orange);
+            font-weight: 900;
+            display: inline-block;
+            transform: translateY(-20px);
+            font-size: 0.7em;
+        }
+        
+        .subheading {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 60px;
+            max-width: 700px;
+        }
+        
+        .cta-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        /* Employee of the Month Section */
+        .eotm-section {
+            background: var(--gradient-teal);
+            color: white;
+            padding: 120px 0;
+            text-align: center;
+        }
+        
+        .eotm-heading {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            margin-bottom: 40px;
+        }
+        
+        .employees-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-top: 60px;
+        }
+        
+        .employee-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            width: 320px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transform: rotate(-2deg);
+            transition: transform 0.3s ease;
+        }
+        
+        .employee-card:nth-child(2) {
+            transform: rotate(2deg);
+        }
+        
+        .employee-card:hover {
+            transform: rotate(0) scale(1.03);
+            z-index: 2;
+        }
+        
+        .card-header {
+            background: var(--gradient-accent);
+            padding: 15px;
+            color: white;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+        
+        .card-header::before {
+            content: "*";
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            color: yellow;
+        }
+        
+        .employee-image {
+            width: 100%;
+            height: 340px;
+            object-fit: cover;
+        }
+        
+        .card-content {
+            padding: 20px;
+            color: var(--dark-blue);
+            text-align: left;
+        }
+        
+        .employee-name {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .employee-title {
+            font-size: 0.9rem;
+            color: var(--gray-dark);
+            margin-bottom: 15px;
+        }
+        
+        /* What We Do Section */
+        .what-we-do {
+            background: var(--dark-blue);
+            color: white;
+            padding: 120px 0;
+        }
+        
+        .section-heading {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 30px;
+        }
+        
+        .service-list {
+            margin-top: 60px;
+        }
+        
+        .service-item {
+            margin-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .service-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .service-title::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -10px;
+            width: 50px;
+            height: 4px;
+            background: var(--gradient-accent);
+        }
+        
+        /* How We Work */
+        .how-we-work {
+            background: linear-gradient(135deg, #ff9966, #ff5e62);
+            color: white;
+            padding: 120px 0;
+        }
+        
+        .process-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 60px;
+        }
+        
+        .process-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 30px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .process-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .process-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        /* Testimonials */
+        .testimonials {
+            background: #f8f4ff;
+            padding: 120px 0;
+        }
+        
+        .testimonial-heading {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 40px;
+            color: var(--purple-dark);
+        }
+        
+        .testimonial-heading .asterisk {
+            color: var(--orange);
+        }
+        
+        .testimonial-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 60px;
+        }
+        
+        .testimonial-card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transform: rotate(-1deg);
+            transition: transform 0.3s;
+        }
+        
+        .testimonial-card:nth-child(2n) {
+            transform: rotate(1deg);
+        }
+        
+        .testimonial-card:hover {
+            transform: rotate(0) translateY(-5px);
+        }
+        
+        .testimonial-text {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        
+        .testimonial-author {
+            font-weight: 700;
+        }
+        
+        .testimonial-title {
+            color: var(--gray-dark);
+            font-size: 0.9rem;
+        }
+        
+        /* Pricing */
+        .pricing {
+            background: linear-gradient(135deg, var(--teal), var(--teal-light));
+            color: white;
+            padding: 120px 0;
+            text-align: center;
+        }
+        
+        .pricing-heading {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 30px;
+        }
+        
+        .pricing-subheading {
+            font-size: 1.5rem;
+            margin-bottom: 60px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 500px;
+            margin: 0 auto;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .price {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+        
+        .price-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+        
+        .price-features {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+        
+        .price-features li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .price-features i {
+            color: rgba(255, 255, 255, 0.8);
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--gradient-main);
+            color: white;
+            padding: 100px 0 60px;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 40px;
+        }
+        
+        .footer-info {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        
+        .footer-tagline {
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .footer-contact {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+        
+        .footer-contact i {
+            margin-right: 10px;
+            color: var(--orange);
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .footer-links h3 {
+            margin-bottom: 20px;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            margin-bottom: 10px;
+            transition: color 0.2s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .copyright {
+            margin-top: 60px;
+            font-size: 0.9rem;
+            opacity: 0.6;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .cta-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .process-cards, .testimonial-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .header, .eotm-section, .what-we-do, .how-we-work, .testimonials, .pricing, .footer {
+                padding: 80px 0;
+            }
+            
+            .employee-card {
+                width: 100%;
+            }
+            
+            .service-title {
+                font-size: 1.5rem;
+            }
+            
+            .pricing-card {
+                padding: 30px 20px;
+            }
+        }
+        
+        /* Asterisk animations */
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+        
+        .floating-asterisk {
+            position: absolute;
+            font-size: 3rem;
+            color: var(--orange);
+            opacity: 0.5;
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        .asterisk-1 {
+            top: 20%;
+            right: 10%;
+            animation-delay: 0s;
+        }
+        
+        .asterisk-2 {
+            bottom: 30%;
+            left: 5%;
+            font-size: 5rem;
+            animation-delay: 1s;
+        }
+        
+        .asterisk-3 {
+            top: 60%;
+            right: 20%;
+            font-size: 4rem;
+            animation-delay: 2s;
+        }
+    </style>
+</head>
+<body>
+    <div class="color-bar"></div>
+    
+    <!-- Header -->
+    <header class="header">        
+        <div class="container">
+            <h1 class="main-heading">Your product is awesome.<span class="asterisk">*</span><br>But your business isn't growing fast enough.<span class="asterisk">*</span><br>Let's fix that.<span class="asterisk">*</span></h1>
+            
+            <div class="cta-container">
+                <a href="#what-we-do" class="btn btn-primary">See How We Work</a>
+                <a href="#contact" class="btn btn-outline">Talk to Us</a>
+            </div>
+        </div>
+        
+        <span class="floating-asterisk asterisk-1">*</span>
+        <span class="floating-asterisk asterisk-2">*</span>
+    </header>
+    
+    <!-- Employee of the Month Section -->
+    <section class="eotm-section">
+        <div class="container">
+            <h2 class="eotm-heading">We're your employees<br>of the month<span class="asterisk">*</span></h2>
+            <p>We don't just consult. We roll up our sleeves and work alongside you to generate real growth.</p>
+            
+            <div class="employees-container">
+                <div class="employee-card">
+                    <div class="card-header">EMPLOYEE OF THE MONTH</div>
+                    <img src="images/bharat.jpg" alt="Bharat Ayyar" class="employee-image">
+                    <div class="card-content">
+                        <h3 class="employee-name">Bharat Ayyar</h3>
+                        <p class="employee-title">Business Partner</p>
+                        <p>Former CEO of Sunsoil and GM at Simple Contacts. MBA from Stanford, BA from Yale.</p>
+                    </div>
+                </div>
+                
+                <div class="employee-card">
+                    <div class="card-header">EMPLOYEE OF THE MONTH</div>
+                    <img src="images/rachel.jpg" alt="Rachel Bronstein" class="employee-image">
+                    <div class="card-content">
+                        <h3 class="employee-name">Rachel Bronstein</h3>
+                        <p class="employee-title">Marketing Partner</p>
+                        <p>Former marketing lead at Dashlane. Worked with Netflix, Meta, and Parsely Health.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <span class="floating-asterisk asterisk-3">*</span>
+    </section>
+    
+    <!-- What We Do Section -->
+    <section class="what-we-do">
+        <div class="container">
+            <h2 class="section-heading">What we do</h2>
+            <p>We help small businesses in the Hudson Valley grow through a unique partnership model.</p>
+            
+            <div class="service-list">
+                <div class="service-item">
+                    <h3 class="service-title">No upfront fees</h3>
+                    <p>Unlike most agencies or consultants, we don't charge an upfront retainer or monthly fee. Instead, we work alongside founders on a growth-share model, where we earn a percentage of revenue growth we create for the business.</p>
+                </div>
+                
+                <div class="service-item">
+                    <h3 class="service-title">Your success = our success</h3>
+                    <p>If we don't help you grow, we don't get paid. It's that simple. Our incentives are perfectly aligned with yours, which means we're just as committed to your business growth as you are.</p>
+                </div>
+                
+                <div class="service-item">
+                    <h3 class="service-title">Full-stack expertise</h3>
+                    <p>We bring enterprise-level experience to help local businesses tackle their most pressing challenges, from marketing and sales to operations and finance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- How We Work -->
+    <section class="how-we-work">
+        <div class="container">
+            <h2 class="section-heading">How we work</h2>
+            <p>We're hands-on partners dedicated to creating sustainable growth.</p>
+            
+            <div class="process-cards">
+                <div class="process-card">
+                    <div class="process-number">01</div>
+                    <h3 class="process-title">Financial Analysis</h3>
+                    <p>We analyze your numbers to identify growth opportunities and create financial models that drive profitability.</p>
+                </div>
+                
+                <div class="process-card">
+                    <div class="process-number">02</div>
+                    <h3 class="process-title">Marketing Strategy</h3>
+                    <p>We develop effective marketing strategies that attract and convert customers.</p>
+                </div>
+                
+                <div class="process-card">
+                    <div class="process-number">03</div>
+                    <h3 class="process-title">Sales Optimization</h3>
+                    <p>We refine your sales process and implement systems that drive consistent revenue growth.</p>
+                </div>
+                
+                <div class="process-card">
+                    <div class="process-number">04</div>
+                    <h3 class="process-title">Operational Improvements</h3>
+                    <p>We streamline your operations to reduce costs and increase productivity.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container">
+            <h2 class="testimonial-heading">What our clients say about our sh<span class="asterisk">*</span>t</h2>
+            <p>Don't take our word for it. Here's what business owners have to say about working with us.</p>
+            
+            <div class="testimonial-cards">
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"I needed help with my marketing but was worried about wasting money on an agency. EOTM's growth-share model was exactly what I needed. They've already increased our revenue by 32% in three months."</p>
+                    <div class="testimonial-author">Jane Smith</div>
+                    <div class="testimonial-title">Owner, Local Cafe</div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"Working with Bharat and Rachel feels like having two brilliant CMOs on my team. They understand my business inside and out and are just as invested in its success as I am."</p>
+                    <div class="testimonial-author">Michael Johnson</div>
+                    <div class="testimonial-title">Founder, Tech Startup</div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"EOTM brings big company expertise to my small business. Their strategies have transformed how we approach growth and given us a clear roadmap to scale."</p>
+                    <div class="testimonial-author">Sarah Williams</div>
+                    <div class="testimonial-title">CEO, Retail Brand</div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"These two are the real deal. No BS, no fluff, just effective strategies that actually work. Best business decision I've made this year."</p>
+                    <div class="testimonial-author">David Chen</div>
+                    <div class="testimonial-title">Owner, Service Business</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Pricing -->
+    <section class="pricing">
+        <div class="container">
+            <h2 class="pricing-heading">One price.<br>No monthly bulls<span class="asterisk">*</span>t.</h2>
+            <p class="pricing-subheading">We only get paid when you grow. Simple as that.</p>
+            
+            <div class="pricing-card">
+                <div class="price">15%</div>
+                <div class="price-subtitle">of new revenue we generate</div>
+                
+                <ul class="price-features">
+                    <li><i class="fas fa-check-circle"></i> No upfront retainers</li>
+                    <li><i class="fas fa-check-circle"></i> No monthly fees</li>
+                    <li><i class="fas fa-check-circle"></i> Full access to our expertise</li>
+                    <li><i class="fas fa-check-circle"></i> Hands-on implementation</li>
+                    <li><i class="fas fa-check-circle"></i> Regular strategy sessions</li>
+                    <li><i class="fas fa-check-circle"></i> If you don't grow, we don't get paid</li>
+                </ul>
+                
+                <a href="#contact" class="btn btn-primary">Let's Talk</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer id="contact" class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <div class="footer-logo">EOTM*</div>
+                    <p class="footer-tagline">We're not just consultants. We're your employees of the month, every month.</p>
+                    
+                    <p class="footer-contact"><i class="fas fa-envelope"></i> hello@eotmconsulting.com</p>
+                    <p class="footer-contact"><i class="fas fa-map-marker-alt"></i> Hudson Valley, NY</p>
+                </div>
+                
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <a href="#what-we-do">What We Do</a>
+                    <a href="#how-we-work">How We Work</a>
+                    <a href="#contact">Contact Us</a>
+                </div>
+                
+                <div class="footer-links">
+                    <h3>Connect</h3>
+                    <a href="#"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                    <a href="#"><i class="fab fa-twitter"></i> Twitter</a>
+                    <a href="#"><i class="fab fa-instagram"></i> Instagram</a>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                © 2025 Employee of the Month Consulting. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
