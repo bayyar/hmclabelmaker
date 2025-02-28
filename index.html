@@ -3,30 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee of the Month Consulting</title>
+    <title>Employee of the Month</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Serif+Text&display=swap" rel="stylesheet">
     <style>
         /* Bold, Modern UI with Gradient Sections */
         :root {
-            --purple-dark: #2e0d56;
-            --purple-light: #5a2ca0;
-            --teal: #0c9d92;
-            --teal-light: #24d1c4;
-            --orange: #ff7d54;
-            --coral: #ff5672;
-            --dark-blue: #091e42;
-            --light: #ffffff;
+            /* Primary Colors */
+            --deep-forest-green: #2C5545;
+            --slate-blue: #4A6D8B;
+            --warm-stone: #D0C0A7;
+            
+            /* Secondary Colors */
+            --muted-burgundy: #7D3C45;
+            --soft-cream: #F5F1E8;
+            
+            /* Accent Color */
+            --golden-amber: #C39A51;
+            
+            /* Functional mapping to existing design */
+            --purple-dark: var(--deep-forest-green);
+            --purple-light: var(--slate-blue);
+            --teal: var(--deep-forest-green);
+            --teal-light: var(--slate-blue);
+            --orange: var(--golden-amber);
+            --coral: var(--muted-burgundy);
+            --dark-blue: var(--deep-forest-green);
+            --light: var(--soft-cream);
             --gray: #f4f4f8;
             --gray-dark: #a0a0a0;
-            --font-heading: 'Inter', sans-serif;
+            --font-heading: 'DM Serif Text', serif;
             --font-body: 'Inter', sans-serif;
-            --gradient-main: linear-gradient(135deg, var(--purple-dark) 0%, var(--purple-light) 100%);
-            --gradient-accent: linear-gradient(90deg, var(--orange) 0%, var(--coral) 100%);
-            --gradient-teal: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
-            --gradient-rainbow: linear-gradient(90deg, #ff9966, #ff5e62, #a651ff, #6a82fb, #05d5ff, #0fd850);
+            --gradient-main: linear-gradient(135deg, var(--deep-forest-green) 0%, var(--slate-blue) 100%);
+            --gradient-accent: linear-gradient(90deg, var(--golden-amber) 0%, var(--muted-burgundy) 100%);
+            --gradient-teal: linear-gradient(135deg, var(--deep-forest-green) 0%, var(--slate-blue) 100%);
+            --gradient-rainbow: linear-gradient(90deg, var(--warm-stone), var(--muted-burgundy), var(--slate-blue), var(--deep-forest-green), var(--golden-amber), var(--soft-cream));
         }
         
         * {
@@ -45,7 +58,7 @@
         
         h1, h2, h3, h4, h5 {
             font-family: var(--font-heading);
-            font-weight: 800;
+            font-weight: normal;
             line-height: 1.2;
         }
         
@@ -158,8 +171,8 @@
         
         /* Employee of the Month Section */
         .eotm-section {
-            background: var(--gradient-teal);
-            color: white;
+            background: var(--soft-cream);
+            color: var(--deep-forest-green);
             padding: 120px 0;
             text-align: center;
         }
@@ -167,6 +180,11 @@
         .eotm-heading {
             font-size: clamp(2.5rem, 6vw, 4rem);
             margin-bottom: 40px;
+            color: var(--deep-forest-green);
+        }
+        
+        .eotm-section p {
+            color: var(--deep-forest-green);
         }
         
         .employees-container {
@@ -561,6 +579,10 @@
             font-size: 4rem;
             animation-delay: 2s;
         }
+        
+        .floating-asterisk.asterisk-3 {
+            color: var(--golden-amber);
+        }
     </style>
 </head>
 <body>
@@ -569,7 +591,7 @@
     <!-- Header -->
     <header class="header">        
         <div class="container">
-            <h1 class="main-heading">Your product is awesome.<span class="asterisk">*</span><br>But your business isn't growing fast enough.<span class="asterisk">*</span><br>Let's fix that.<span class="asterisk">*</span></h1>
+            <h1 class="main-heading">Your product is awesome.<span class="asterisk">*</span><br>Your business isn't growing fast enough.<span class="asterisk">*</span><br>Let's fix that.<span class="asterisk">*</span></h1>
             
             <div class="cta-container">
                 <a href="#what-we-do" class="btn btn-primary">See How We Work</a>
@@ -594,7 +616,7 @@
                     <div class="card-content">
                         <h3 class="employee-name">Bharat Ayyar</h3>
                         <p class="employee-title">Business Partner</p>
-                        <p>Former CEO of Sunsoil and GM at Simple Contacts. MBA from Stanford, BA from Yale.</p>
+                        <p>Formerly: CEO of Sunsoil, an organic CBD oil company, and General Manager at Simple Contacts. Stanford MBA.</p>
                     </div>
                 </div>
                 
@@ -604,7 +626,7 @@
                     <div class="card-content">
                         <h3 class="employee-name">Rachel Bronstein</h3>
                         <p class="employee-title">Marketing Partner</p>
-                        <p>Former marketing lead at Dashlane. Worked with Netflix, Meta, and Parsely Health.</p>
+                        <p>Formerly: Content strategy at Dashlane. Freelance strategist and writer for co's like Netflix, Meta, and Parsely Health.</p>
                     </div>
                 </div>
             </div>
@@ -675,7 +697,7 @@
     <!-- Testimonials -->
     <section class="testimonials">
         <div class="container">
-            <h2 class="testimonial-heading">What our clients say about our sh<span class="asterisk">*</span>t</h2>
+            <h2 class="testimonial-heading">What our clients say about us</h2>
             <p>Don't take our word for it. Here's what business owners have to say about working with us.</p>
             
             <div class="testimonial-cards">
@@ -697,28 +719,20 @@
                     <div class="testimonial-title">CEO, Retail Brand</div>
                 </div>
                 
-                <div class="testimonial-card">
-                    <p class="testimonial-text">"These two are the real deal. No BS, no fluff, just effective strategies that actually work. Best business decision I've made this year."</p>
-                    <div class="testimonial-author">David Chen</div>
-                    <div class="testimonial-title">Owner, Service Business</div>
-                </div>
-            </div>
         </div>
     </section>
     
     <!-- Pricing -->
     <section class="pricing">
         <div class="container">
-            <h2 class="pricing-heading">One price.<br>No monthly bulls<span class="asterisk">*</span>t.</h2>
-            <p class="pricing-subheading">We only get paid when you grow. Simple as that.</p>
+            <h2 class="pricing-heading">We only get paid when you grow.</h2>
             
             <div class="pricing-card">
-                <div class="price">15%</div>
+                <div class="price">10-20%</div>
                 <div class="price-subtitle">of new revenue we generate</div>
                 
                 <ul class="price-features">
-                    <li><i class="fas fa-check-circle"></i> No upfront retainers</li>
-                    <li><i class="fas fa-check-circle"></i> No monthly fees</li>
+                    <li><i class="fas fa-check-circle"></i> Low monthly retainer</li>
                     <li><i class="fas fa-check-circle"></i> Full access to our expertise</li>
                     <li><i class="fas fa-check-circle"></i> Hands-on implementation</li>
                     <li><i class="fas fa-check-circle"></i> Regular strategy sessions</li>
@@ -735,10 +749,11 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <div class="footer-logo">EOTM*</div>
-                    <p class="footer-tagline">We're not just consultants. We're your employees of the month, every month.</p>
+                    <div class="footer-logo">Employee of the Month</div>
+                    <p class="footer-tagline">We're not just consultants. We're your employees of the month.</p>
                     
-                    <p class="footer-contact"><i class="fas fa-envelope"></i> hello@eotmconsulting.com</p>
+                    <p class="footer-contact"><i class="fas fa-envelope"></i> bayyar@gmail.com</p>
+                    <p class="footer-contact"><i class="fas fa-envelope"></i> rmbronstein@gmail.com</p>
                     <p class="footer-contact"><i class="fas fa-map-marker-alt"></i> Hudson Valley, NY</p>
                 </div>
                 
