@@ -500,7 +500,7 @@
         }
 
         .brand-title h4 {
-            font-size: 2.0625em; /* 16.5pt equivalent for screen, maintains 16.5pt for print */
+            font-size: 3em; /* Increased to better align with logo height */
             font-weight: 800;
             line-height: 1;
             color: inherit;
@@ -510,7 +510,7 @@
         }
 
         .brand-title .dish-subtitle {
-            font-size: 1.40625em; /* 11.25pt equivalent for screen, maintains 11.25pt for print */
+            font-size: 2em; /* Increased to better align with logo height */
             font-weight: 400;
             font-style: italic;
             color: inherit;
@@ -526,10 +526,12 @@
             display: flex;
             flex-direction: column;
             line-height: 1.3;
-            padding: 8px;
+            padding: 12px;
             background: transparent;
             overflow: hidden;
             font-size: 0.875em; /* Ensure consistent base font size */
+            border: 0.5px solid #000;
+            margin: 4px;
         }
         
         .cell-6-9 .ingredients-label {
@@ -582,7 +584,7 @@
             padding-top: 8px;
             padding-bottom: 4px;
             border-top: 1px solid #ddd;
-            font-size: 0.75em; /* 6pt equivalent for screen, maintains 6pt for print */
+            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
             color: #444;
             line-height: 1.4;
             font-weight: 400;
@@ -602,7 +604,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             padding: 8px;
-            font-size: 0.9375em; /* 7.5pt equivalent for screen, maintains 7.5pt for print */
+            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
         }
         
         .chef-instructions, .fast-instructions {
@@ -612,12 +614,12 @@
         
         .instructions-title {
             font-weight: 700;
-            font-size: 0.9375em; /* 7.5pt equivalent for screen, maintains 7.5pt for print */
+            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
             margin-bottom: 4px;
         }
         
         .instructions-text {
-            font-size: 0.9375em; /* 7.5pt equivalent for screen, maintains 7.5pt for print */
+            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
             line-height: 1.4;
             color: #333;
             font-weight: 400;
@@ -661,11 +663,11 @@
             
             /* Ensure print maintains absolute font sizes */
             .brand-title h4 {
-                font-size: 16.5pt !important;
+                font-size: 20pt !important; /* Increased to better align with logo */
             }
             
             .brand-title .dish-subtitle {
-                font-size: 11.25pt !important;
+                font-size: 14pt !important; /* Increased to better align with logo */
             }
             
             .cell-3 .label-text,
@@ -677,19 +679,19 @@
             .allergens-label,
             .subsection-label,
             .meta-text,
-            .allergens-text,
-            .company-name {
+            .allergens-text {
                 font-size: 7pt !important;
             }
             
-            .company-info {
-                font-size: 6pt !important;
+            .company-info,
+            .company-name {
+                font-size: 7pt !important; /* Company info standardized to 7pt minimum */
             }
             
             .cell-7-8,
             .instructions-title,
             .instructions-text {
-                font-size: 7.5pt !important;
+                font-size: 7pt !important; /* Standardized to 7pt minimum */
             }
             
             /* Ensure on-screen transforms do not affect print */
@@ -1459,9 +1461,9 @@
             const titleEl = document.getElementById('previewDish');
             const subtitleEl = document.getElementById('previewSubtitle');
             if (!rowEl || !logoImg || !titleEl || !subtitleEl) return;
-            // Start from base sizes and shrink if overflow
-            let titleSize = 16.5; // pt
-            let subtitleSize = 11.25; // pt
+            // Start from larger base sizes and shrink if overflow
+            let titleSize = 20; // pt - increased from 16.5pt
+            let subtitleSize = 14; // pt - increased from 11.25pt
             titleEl.style.fontSize = titleSize + 'pt';
             subtitleEl.style.fontSize = subtitleSize + 'pt';
             const maxHeight = logoImg.getBoundingClientRect().height - 4; // small breathing room
