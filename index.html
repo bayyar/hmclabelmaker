@@ -470,18 +470,18 @@
         
         .cell-3 .label-text {
             font-weight: 700;
-            font-size: 7pt;
+            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
         }
         
         .cell-3 .date-value {
-            font-size: 7pt;
+            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
             font-weight: 400;
         }
         
         .cell-3 .weight-text {
             font-weight: 400;
             margin-top: 2px;
-            font-size: 7pt;
+            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
         }
         
         .cell-3 .weight-label {
@@ -500,7 +500,7 @@
         }
 
         .brand-title h4 {
-            font-size: 16.5pt; /* initial, will be dynamically adjusted */
+            font-size: 2.0625em; /* 16.5pt equivalent for screen, maintains 16.5pt for print */
             font-weight: 800;
             line-height: 1;
             color: inherit;
@@ -510,7 +510,7 @@
         }
 
         .brand-title .dish-subtitle {
-            font-size: 11.25pt; /* initial, will be dynamically adjusted */
+            font-size: 1.40625em; /* 11.25pt equivalent for screen, maintains 11.25pt for print */
             font-weight: 400;
             font-style: italic;
             color: inherit;
@@ -533,14 +533,14 @@
         
         .cell-6-9 .ingredients-label {
             font-weight: 700;
-            font-size: 7pt; /* >=7pt */
+            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
             margin-bottom: 3px;
         }
         
         .ingredients-list {
             color: #333;
             margin-bottom: 6px;
-            font-size: 7pt;
+            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
             line-height: 1.3;
             font-weight: 400;
         }
@@ -549,28 +549,28 @@
             margin-top: 4px;
             padding-top: 4px;
             border-top: 1px solid #ddd;
-            font-size: 7pt;
+            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
         }
         
         .allergens-label {
             font-weight: 700;
-            font-size: 7pt;
+            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
         }
 
         .subsection-label {
             font-weight: 700;
-            font-size: 7pt;
+            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
         }
 
         .meta-text {
             color: #333;
-            font-size: 7pt;
+            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
             font-weight: 400;
         }
         
         .allergens-text {
             color: #333;
-            font-size: 7pt;
+            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
             font-weight: 400;
         }
         
@@ -579,7 +579,7 @@
             padding-top: 8px;
             padding-bottom: 4px;
             border-top: 1px solid #ddd;
-            font-size: 6pt;
+            font-size: 0.75em; /* 6pt equivalent for screen, maintains 6pt for print */
             color: #444;
             line-height: 1.4;
             font-weight: 400;
@@ -588,7 +588,7 @@
         .company-name {
             font-weight: 600;
             margin-bottom: 2px;
-            font-size: 7pt;
+            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
         }
         
         /* Cells 7-8 - Heating Instructions */
@@ -599,7 +599,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             padding: 8px;
-            font-size: 7.5pt;
+            font-size: 0.9375em; /* 7.5pt equivalent for screen, maintains 7.5pt for print */
         }
         
         .chef-instructions, .fast-instructions {
@@ -609,12 +609,12 @@
         
         .instructions-title {
             font-weight: 700;
-            font-size: 7.5pt;
+            font-size: 0.9375em; /* 7.5pt equivalent for screen, maintains 7.5pt for print */
             margin-bottom: 4px;
         }
         
         .instructions-text {
-            font-size: 7.5pt;
+            font-size: 0.9375em; /* 7.5pt equivalent for screen, maintains 7.5pt for print */
             line-height: 1.4;
             color: #333;
             font-weight: 400;
@@ -654,6 +654,39 @@
                 page-break-after: always;
                 width: 4.5in !important; /* Include bleed in print */
                 height: 3.5in !important;
+            }
+            
+            /* Ensure print maintains absolute font sizes */
+            .brand-title h4 {
+                font-size: 16.5pt !important;
+            }
+            
+            .brand-title .dish-subtitle {
+                font-size: 11.25pt !important;
+            }
+            
+            .cell-3 .label-text,
+            .cell-3 .date-value,
+            .cell-3 .weight-text,
+            .cell-6-9 .ingredients-label,
+            .ingredients-list,
+            .allergens-section,
+            .allergens-label,
+            .subsection-label,
+            .meta-text,
+            .allergens-text,
+            .company-name {
+                font-size: 7pt !important;
+            }
+            
+            .company-info {
+                font-size: 6pt !important;
+            }
+            
+            .cell-7-8,
+            .instructions-title,
+            .instructions-text {
+                font-size: 7.5pt !important;
             }
             
             /* Ensure on-screen transforms do not affect print */
