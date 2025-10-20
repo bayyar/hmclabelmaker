@@ -60,6 +60,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: flex-start;
+            min-height: 600px;
+        }
+        
+        .label-navigation {
+            display: none; /* Hide from preview section - moved to controls */
         }
         
         /* On-screen actual-size preview helpers */
@@ -72,7 +78,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-bottom: 16px;
+            margin-top: 20px;
         }
         
         .preview-scale-row {
@@ -119,6 +125,66 @@
             color: #333;
             font-weight: 700;
             font-size: 18px;
+        }
+        
+        /* Elegant navigation controls */
+        .label-navigation {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .label-counter {
+            text-align: center;
+            font-weight: 600;
+            color: #334155;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .nav-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-width: 80px;
+        }
+        
+        .nav-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .nav-button:active {
+            transform: translateY(0);
+        }
+        
+        .nav-button:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .nav-button:disabled:hover {
+            transform: none;
         }
         
         .form-group {
@@ -194,83 +260,188 @@
             }
         }
         
-        /* Label Styles - 3x3 Grid System with adjusted proportions */
+        /* Label Styles - 3x4 Grid System */
         .label {
-            width: 4.25in;
-            height: 3.26in;
+            width: 4in;
+            height: 3in;
             background: white;
-            border: 1px solid #ddd;
-            padding: 0.15in;
+            padding: 0;
             margin: 0 auto;
             display: grid;
             grid-template-columns: 30% 30% 40%;
-            grid-template-rows: 0.6fr 1.2fr 1.2fr;
-            gap: 6px;
+            grid-template-rows: 0.6fr 2.4fr; /* Top row 20%, bottom area 80% */
+            gap: 0;
             position: relative;
             font-family: 'Karla', sans-serif;
-            /* Print specifications */
             box-sizing: border-box;
+            /* Solid black border for 3x4 trim area - always visible */
+            border: 0.5px solid #000 !important;
+            box-shadow: 0 0 0 0.5px #000;
+            outline: 0.5px solid #000;
+            z-index: 10;
         }
         
         /* Bleed area - extends beyond trim for professional printing */
         .label::before {
             content: '';
             position: absolute;
-            top: -0.125in; /* 1/8" bleed */
-            left: -0.125in;
-            right: -0.125in;
-            bottom: -0.125in;
-            background: white; /* Default white bleed */
-            z-index: -1;
+            top: -0.25in; /* 1/4" bleed */
+            left: -0.25in;
+            right: -0.25in;
+            bottom: -0.25in;
+            background: white;
+            z-index: -2;
             border-radius: 0;
+            /* Dotted border for bleed area */
+            border: 1px dotted #000;
+            /* Ensure this doesn't cover the main border */
+            pointer-events: none;
         }
+        
+        /* Bleed area background for top row - extends brand color to bleed edges */
+        .label::after {
+            content: '';
+            position: absolute;
+            top: -0.25in;
+            left: -0.25in;
+            right: -0.25in;
+            height: calc(20% + 0.25in); /* Top row height + bleed */
+            background: var(--brand-bg, var(--color-green));
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* Grid lines overlay */
+        .grid-guides {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            display: none;
+            z-index: 5;
+            /* Light red grid lines */
+            background-image:
+                /* Vertical lines */
+                linear-gradient(to right, rgba(255,0,0,0.3) 0%, rgba(255,0,0,0.3) 1px, transparent 1px),
+                linear-gradient(to right, rgba(255,0,0,0.3) 0%, rgba(255,0,0,0.3) 1px, transparent 1px),
+                /* Horizontal line at 20% */
+                linear-gradient(to bottom, rgba(255,0,0,0.3) 0%, rgba(255,0,0,0.3) 1px, transparent 1px);
+            background-repeat: no-repeat;
+            background-size: 100% 100%, 100% 100%, 100% 100%;
+            background-position: 30% 0, 60% 0, 0 20%;
+        }
+        .label.show-grid .grid-guides { display: block; }
+        
+        /* Crop marks at corners of 3x4 border */
+        .crop-marks {
+            position: absolute;
+            top: -0.25in;
+            left: -0.25in;
+            right: -0.25in;
+            bottom: -0.25in;
+            pointer-events: none;
+            z-index: 10;
+            display: none;
+        }
+        
+        .crop-marks::before {
+            content: '';
+            position: absolute;
+            /* Top-left crop mark */
+            top: 0;
+            left: 0;
+            width: 0.125in;
+            height: 0.125in;
+            border-top: 2px solid #000;
+            border-left: 2px solid #000;
+        }
+        
+        .crop-marks::after {
+            content: '';
+            position: absolute;
+            /* Top-right crop mark */
+            top: 0;
+            right: 0;
+            width: 0.125in;
+            height: 0.125in;
+            border-top: 2px solid #000;
+            border-right: 2px solid #000;
+        }
+        
+        .crop-marks .bottom-left {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0.125in;
+            height: 0.125in;
+            border-bottom: 2px solid #000;
+            border-left: 2px solid #000;
+        }
+        
+        .crop-marks .bottom-right {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 0.125in;
+            height: 0.125in;
+            border-bottom: 2px solid #000;
+            border-right: 2px solid #000;
+        }
+        
+        .label.show-grid .crop-marks { display: block; }
 
-        /* Grid guide overlay (debug) */
+        /* Comprehensive grid guide overlay */
         .grid-guides {
             position: absolute;
             /* align guides with the content area (inside padding) */
             top: 0.15in; left: 0.15in; right: 0.15in; bottom: 0.15in;
             pointer-events: none;
             display: none;
-            /* columns at 30% and 60%, rows at ~33% and 66% of remaining rows (approx with current row frs) */
+            /* All column and row dividers */
             background-image:
-                linear-gradient(to right, rgba(255,0,0,0.25), rgba(255,0,0,0.25)),
-                linear-gradient(to right, rgba(255,0,0,0.25), rgba(255,0,0,0.25)),
-                linear-gradient(to bottom, rgba(255,0,0,0.25), rgba(255,0,0,0.25)),
-                linear-gradient(to bottom, rgba(255,0,0,0.25), rgba(255,0,0,0.25));
+                /* Column dividers at 30% and 60% */
+                linear-gradient(to right, rgba(255,0,0,0.3) 0%, rgba(255,0,0,0.3) 1px, transparent 1px),
+                linear-gradient(to right, rgba(255,0,0,0.3) 0%, rgba(255,0,0,0.3) 1px, transparent 1px),
+                /* Row dividers at ~33% and 66% of remaining rows */
+                linear-gradient(to bottom, rgba(255,0,0,0.3) 0%, rgba(255,0,0,0.3) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,0,0,0.3) 0%, rgba(255,0,0,0.3) 1px, transparent 1px);
             background-repeat: no-repeat;
-            background-size: 1px 100%, 1px 100%, 100% 1px, 100% 1px;
+            background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%;
             background-position: 30% 0, 60% 0, 0 calc(0.6fr / (0.6fr + 1.2fr + 1.2fr) * 100%), 0 calc((0.6fr + 1.2fr) / (0.6fr + 1.2fr + 1.2fr) * 100%);
-            outline: 1px dashed rgba(255,0,0,0.18);
+            /* Outer border */
+            outline: 1px solid rgba(255,0,0,0.3);
         }
         .label.show-grid .grid-guides { display: block; }
+
         
-        /* Cell 1 - Logo */
+        /* Cell 1 - Logo (spans all columns in row 1) */
         .cell-1 {
-            grid-column: 1 / 4; /* span all three columns */
+            grid-column: 1 / 4;
             grid-row: 1;
             display: flex;
             align-items: stretch;
-            justify-content: flex-start; /* back to left alignment */
-            padding: 0 8px; /* minimal horizontal padding to keep text away from edges */
+            justify-content: flex-start;
+            padding: 8px;
             background: transparent;
-            border-radius: 0;
             gap: 10px;
             min-height: 0;
             position: relative;
+            z-index: 1;
         }
         .cell-1::before {
             content: '';
             position: absolute;
-            /* extend background to label edges only (no bleed in preview) */
-            top: calc(-0.15in + 1px); /* padding + border */
-            left: calc(-0.15in + 1px);
-            right: calc(-0.15in + 1px);
-            bottom: 0; /* stop at row boundary */
+            /* Extend background to bleed area edges */
+            top: -0.25in;
+            left: -0.25in;
+            right: -0.25in;
+            bottom: 0;
             background: var(--brand-bg, var(--color-green));
-            z-index: 0;
+            z-index: -1;
         }
-        .cell-1 > * { position: relative; z-index: 1; }
+        .cell-1 > * { position: relative; z-index: 2; }
         
         .logo-container {
             height: 100%;
@@ -349,14 +520,12 @@
         /* Cells 6, 9 - Ingredients and Info (merged) */
         .cell-6-9 {
             grid-column: 3;
-            grid-row: 2 / 4;
+            grid-row: 2;
             display: flex;
             flex-direction: column;
             line-height: 1.3;
             padding: 8px;
-            background: transparent; /* remove shading */
-            border-radius: 0;
-            border-left: 1px solid #bdbdbd; /* vertical separator only across rows 2-3 */
+            background: transparent;
             overflow: hidden;
         }
         
@@ -423,11 +592,11 @@
         /* Cells 7-8 - Heating Instructions */
         .cell-7-8 {
             grid-column: 1 / 3;
-            grid-row: 2 / 4; /* span rows 2 and 3 */
+            grid-row: 2;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            padding: 8px 10px;
+            padding: 8px;
             font-size: 7.5pt;
         }
         
@@ -479,8 +648,10 @@
             }
             
             .label {
-                border: none !important; /* Remove gray border for printing */
+                border: none !important; /* Remove black border for printing */
                 page-break-after: always;
+                width: 4.5in !important; /* Include bleed in print */
+                height: 3.5in !important;
             }
             
             /* Ensure on-screen transforms do not affect print */
@@ -499,6 +670,80 @@
         <div class="main-layout">
             <div class="preview-section">
                 <h2>Label Preview</h2>
+                <div class="scale-wrapper" id="scaleWrapper">
+                    <div class="label" id="labelPreview">
+                    <div class="grid-guides" aria-hidden="true"></div>
+                    <div class="crop-marks" aria-hidden="true">
+                        <div class="bottom-left"></div>
+                        <div class="bottom-right"></div>
+                    </div>
+                    <!-- Cell 1: Logo + Title (spans all columns) -->
+                    <div class="cell-1">
+                        <div class="logo-container">
+                            <img id="brandLogo" src="images/logos/White Logo Suite/HMC_Vertical Full Lockup_White [RGB].png" alt="Hudson Meal Co Logo" />
+                        </div>
+                        <div class="brand-title">
+                            <h4 id="previewDish">Select Season and Rotation</h4>
+                            <div class="dish-subtitle" id="previewSubtitle">to load labels</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cell 2: Empty/Available -->
+                    <div class="cell-2">
+                        <!-- Empty for now -->
+                    </div>
+                    
+                    <!-- Cell 3 removed; Best By/Weight moved under allergens -->
+                    
+                    <!-- Cells 4-5: removed (content moved to row 1) -->
+                    
+                    <!-- Cells 6 & 9: Ingredients & Info -->
+                    <div class="cell-6-9">
+                        <div class="ingredients-label">INGREDIENTS:</div>
+                        <div class="ingredients-list" id="previewIngredients">Please select a season and rotation to load dish data</div>
+                        <div class="allergens-section">
+                            <span class="allergens-label">ALLERGENS:</span>
+                            <span class="allergens-text" id="previewAllergens">-</span>
+                        </div>
+                        <div class="meta-block">
+                            <div class="meta-row">
+                                <span class="subsection-label">BEST BY:</span>
+                                <span class="meta-text" id="previewBestBy">-</span>
+                            </div>
+                            <div class="meta-row">
+                                <span class="subsection-label">NET WT:</span>
+                                <span class="meta-text" id="previewWeight">-</span>
+                            </div>
+                        </div>
+                        <div class="company-info">
+                            <div class="company-name">Hudson Meal Co. LLC</div>
+                            <div>hudsonmealco.com</div>
+                            <div style="margin-top: 4px;">86 Broad Street</div>
+                            <div>Kinderhook, NY 12106</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cells 7-8: Heating Instructions -->
+                    <div class="cell-7-8">
+                        <div class="chef-instructions">
+                            <div class="instructions-title">Chef Instructions:</div>
+                            <div class="instructions-text" id="previewChefInstructions">
+                                <ol>
+                                    <li>Please select a season and rotation</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <div class="fast-instructions">
+                            <div class="instructions-title">Fast Instructions:</div>
+                            <div class="instructions-text" id="previewFastInstructions">
+                                <ol>
+                                    <li>Please select a season and rotation</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
                 <div class="preview-scale-controls" id="previewScaleControls">
                     <div class="preview-scale-row">
                         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
@@ -518,148 +763,60 @@
                         </div>
                     </div>
                 </div>
-                <div class="scale-wrapper" id="scaleWrapper">
-                    <div class="label" id="labelPreview">
-                    <div class="grid-guides" aria-hidden="true"></div>
-                    <!-- Cell 1: Logo + Title (spans all columns) -->
-                    <div class="cell-1">
-                        <div class="logo-container">
-                            <img id="brandLogo" src="images/logos/White Logo Suite/HMC_Vertical Full Lockup_White [RGB].png" alt="Hudson Meal Co Logo" />
-                        </div>
-                        <div class="brand-title">
-                            <h4 id="previewDish">Braised Beef</h4>
-                            <div class="dish-subtitle" id="previewSubtitle">with Chimichurri Sauce</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Cell 2: Empty/Available -->
-                    <div class="cell-2">
-                        <!-- Empty for now -->
-                    </div>
-                    
-                    <!-- Cell 3 removed; Best By/Weight moved under allergens -->
-                    
-                    <!-- Cells 4-5: removed (content moved to row 1) -->
-                    
-                    <!-- Cells 6 & 9: Ingredients & Info -->
-                    <div class="cell-6-9">
-                        <div class="ingredients-label">INGREDIENTS:</div>
-                        <div class="ingredients-list" id="previewIngredients">Grimaldi Farm grassfed organic beef, cilantro, parsley, organic extra-virgin olive oil, salt, red wine vinegar, black pepper, garlic, cumin</div>
-                        <div class="allergens-section">
-                            <span class="allergens-label">ALLERGENS:</span>
-                            <span class="allergens-text" id="previewAllergens">None</span>
-                        </div>
-                        <div class="meta-block">
-                            <div class="meta-row">
-                                <span class="subsection-label">BEST BY:</span>
-                                <span class="meta-text" id="previewBestBy">Thu, 10/20/2025</span>
-                            </div>
-                            <div class="meta-row">
-                                <span class="subsection-label">NET WT:</span>
-                                <span class="meta-text" id="previewWeight">1 lb</span>
-                            </div>
-                        </div>
-                        <div class="company-info">
-                            <div class="company-name">Hudson Meal Co. LLC</div>
-                            <div>hudsonmealco.com</div>
-                            <div style="margin-top: 4px;">86 Broad Street</div>
-                            <div>Kinderhook, NY 12106</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Cells 7-8: Heating Instructions -->
-                    <div class="cell-7-8">
-                        <div class="chef-instructions">
-                            <div class="instructions-title">Chef Instructions:</div>
-                            <div class="instructions-text" id="previewChefInstructions">
-                                <ol>
-                                    <li>Preheat oven to 350°F</li>
-                                    <li>Remove sleeve and film</li>
-                                    <li>Remove sauce and trim</li>
-                                    <li>Heat up 10-15 mins or until heated thoroughly</li>
-                                    <li>Pour sauce on top</li>
-                                </ol>
-                            </div>
-                        </div>
-                        <div class="fast-instructions">
-                            <div class="instructions-title">Fast Instructions:</div>
-                            <div class="instructions-text" id="previewFastInstructions">
-                                <ol>
-                                    <li>Remove sleeve and peel corner of film to vent</li>
-                                    <li>Remove sauce container</li>
-                                    <li>Microwave for 2-4 mins or until heated thoroughly</li>
-                                    <li>Pour sauce on top</li>
-                                    <li>Remove film</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
-                </div>
             </div>
             
             <div class="controls-section">
-                <h3>Label Details</h3>
-                <div class="form-group" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                    <div style="flex:1;min-width:220px;">
-                        <label for="brandColor">Brand Color</label>
-                        <select id="brandColor">
-                            <option value="green" selected>Green (#444E20)</option>
-                            <option value="orange">Orange (#A15408)</option>
-                            <option value="gray">Gray (#BDC7C3)</option>
-                            <option value="red">Red (#520212)</option>
-                            <option value="blue">Blue (#003854)</option>
-                        </select>
-                    </div>
-                    <label style="display:flex;align-items:center;gap:8px;margin-top:22px;cursor:pointer;white-space:nowrap;">
-                        <input type="checkbox" id="toggleGridLines"> Show grid lines
-                    </label>
-                </div>
-                
+                <h3>Label Selection</h3>
                 <div class="form-group">
-                    <label for="dishName">Dish Name</label>
-                    <input type="text" id="dishName" value="Braised Beef" />
+                    <label for="seasonSelect">Season</label>
+                    <select id="seasonSelect">
+                        <option value="">Select Season</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label for="dishSubtitle">Dish Subtitle</label>
-                    <input type="text" id="dishSubtitle" value="with Chimichurri Sauce" />
-                </div>
-                <div class="form-group">
-                    <label for="netWeight">Net Weight</label>
-                    <input type="text" id="netWeight" value="1 lb" />
+                    <label for="rotationSelect">Rotation</label>
+                    <select id="rotationSelect" disabled>
+                        <option value="">Select Rotation</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="bestBy">Best By Date</label>
                     <input type="date" id="bestBy" />
                 </div>
-                <div class="form-group">
-                    <label for="ingredients">Ingredients</label>
-                    <textarea id="ingredients">Grimaldi Farm grassfed organic beef, cilantro, parsley, organic extra-virgin olive oil, salt, red wine vinegar, black pepper, garlic, cumin</textarea>
+                
+                <!-- Elegant Navigation Controls -->
+                <div class="label-navigation">
+                    <div class="label-counter" id="labelCounter">Label 1 of 1</div>
+                    <div class="nav-buttons">
+                        <button class="nav-button" id="prevLabel" onclick="previousLabel()">← Previous</button>
+                        <button class="nav-button" id="nextLabel" onclick="nextLabel()">Next →</button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="allergens">Allergens</label>
-                    <input type="text" id="allergens" value="None" />
-                </div>
-                <div class="form-group">
-                    <label for="chefInstructions">Chef Instructions</label>
-                    <textarea id="chefInstructions">1. Preheat oven to 350°F
-2. Remove sleeve and film
-3. Remove sauce and trim
-4. Heat up 10-15 mins or until heated thoroughly
-5. Pour sauce on top</textarea>
-                </div>
-                <div class="form-group">
-                    <label for="fastInstructions">Fast Instructions</label>
-                    <textarea id="fastInstructions">1. Remove sleeve and peel corner of film to vent
-2. Remove sauce container
-3. Microwave for 2-4 mins or until heated thoroughly
-4. Pour sauce on top
-5. Remove film</textarea>
-                </div>
+                
                 <div class="button-group">
-                    <button onclick="updateLabel()">Update Preview</button>
-                    <button class="secondary" onclick="printLabel()">Print Label</button>
-                    <button class="secondary" onclick="generatePDF()">Download PDF</button>
+                    <button onclick="loadLabels()" id="loadLabelsBtn" disabled>Load Labels</button>
+                    <button onclick="downloadAllPDFs()" id="downloadAllBtn" disabled class="secondary">Download All PDFs</button>
+                    <button onclick="generatePDF()" id="downloadSingleBtn" disabled class="secondary">Download Current PDF</button>
+                    <button onclick="printLabel()" class="secondary">Print Current Label</button>
+                </div>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+                    <h3 style="margin-bottom: 15px;">Display Options</h3>
+                    <div class="form-group" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                        <div style="flex:1;min-width:220px;">
+                            <label for="brandColor">Brand Color</label>
+                            <select id="brandColor">
+                                <option value="green" selected>Green (#444E20)</option>
+                                <option value="orange">Orange (#A15408)</option>
+                                <option value="gray">Gray (#BDC7C3)</option>
+                                <option value="red">Red (#520212)</option>
+                                <option value="blue">Blue (#003854)</option>
+                            </select>
+                        </div>
+                        <label style="display:flex;align-items:center;gap:8px;margin-top:22px;cursor:pointer;white-space:nowrap;">
+                            <input type="checkbox" id="toggleGridLines"> Show grid lines
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -667,7 +824,319 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
+        // Global variables for dish data and current state
+        let allDishes = [];
+        let filteredDishes = [];
+        let currentLabelIndex = 0;
+        
+        // Google Sheets configuration
+        const SHEET_ID = '1UugIwrAyHXOAgBrQcU9zFwIEOYg9-baJdoGCWSMIJNk';
+        const SHEET_GID = '0'; // Default sheet (first tab)
+        const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
+        
+        // Fetch dishes from Google Sheets
+        async function fetchDishesFromSheet() {
+            try {
+                console.log('Fetching dishes from Google Sheets...');
+                const response = await fetch(CSV_URL);
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const csvText = await response.text();
+                console.log('CSV text preview:', csvText.substring(0, 200));
+                
+                // Check if we got HTML instead of CSV (redirect page)
+                if (csvText.includes('<HTML>') || csvText.includes('<html>')) {
+                    console.error('Received HTML instead of CSV - sheet may not be public');
+                    throw new Error('Sheet is not publicly accessible. Please ensure the sheet is published to the web.');
+                }
+                
+                allDishes = parseCSV(csvText);
+                console.log('Parsed dishes:', allDishes);
+                populateSeasonDropdown();
+                console.log(`Loaded ${allDishes.length} dishes from Google Sheets`);
+            } catch (error) {
+                console.error('Error fetching dishes:', error);
+                alert('Error loading dish data from Google Sheets. Please check your internet connection and ensure the sheet is published to the web.');
+                
+                // Load sample data for testing
+                loadSampleData();
+            }
+        }
+        
+        // Load sample data for testing when Google Sheets is not accessible
+        function loadSampleData() {
+            console.log('Loading sample data for testing...');
+            allDishes = [
+                {
+                    'Season': 'Fall 2024',
+                    'Rotation': 'Week 1',
+                    'Dish Name': 'Braised Beef',
+                    'Dish Subtitle': 'with Chimichurri Sauce',
+                    'Net Weight': '1 lb',
+                    'Ingredients': 'Grimaldi Farm grassfed organic beef, cilantro, parsley, organic extra-virgin olive oil, salt, red wine vinegar, black pepper, garlic, cumin',
+                    'Allergens': 'None',
+                    'Chef Instructions': '1. Preheat oven to 350°F\n2. Remove sleeve and film\n3. Remove sauce and trim\n4. Heat up 10-15 mins or until heated thoroughly\n5. Pour sauce on top',
+                    'Fast Instructions': '1. Remove sleeve and peel corner of film to vent\n2. Remove sauce container\n3. Microwave for 2-4 mins or until heated thoroughly\n4. Pour sauce on top\n5. Remove film',
+                    'Color': 'Green'
+                },
+                {
+                    'Season': 'Fall 2024',
+                    'Rotation': 'Week 1',
+                    'Dish Name': 'Chicken Marsala',
+                    'Dish Subtitle': 'with Wild Mushrooms',
+                    'Net Weight': '1.5 lbs',
+                    'Ingredients': 'Free-range chicken breast, marsala wine, wild mushrooms, shallots, garlic, butter, olive oil, salt, pepper',
+                    'Allergens': 'None',
+                    'Chef Instructions': '1. Preheat oven to 375°F\n2. Remove packaging\n3. Place in oven-safe dish\n4. Bake 20-25 minutes\n5. Let rest 5 minutes',
+                    'Fast Instructions': '1. Remove packaging\n2. Microwave on high 3-4 minutes\n3. Let stand 2 minutes\n4. Stir and serve',
+                    'Color': 'Orange'
+                }
+            ];
+            populateSeasonDropdown();
+            console.log('Sample data loaded:', allDishes.length, 'dishes');
+        }
+        
+        // Parse CSV text into dish objects
+        function parseCSV(csvText) {
+            // First, we need to properly handle CSV with newlines inside quoted fields
+            // Split by lines but be careful about quoted fields that span multiple lines
+            const lines = [];
+            let currentLine = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < csvText.length; i++) {
+                const char = csvText[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === '\n' && !inQuotes) {
+                    if (currentLine.trim()) {
+                        lines.push(currentLine.trim());
+                    }
+                    currentLine = '';
+                    continue;
+                }
+                
+                currentLine += char;
+            }
+            
+            // Add the last line if it exists
+            if (currentLine.trim()) {
+                lines.push(currentLine.trim());
+            }
+            
+            console.log('Total lines after proper parsing:', lines.length);
+            console.log('First few lines:', lines.slice(0, 3));
+            
+            if (lines.length < 2) return [];
+            
+            // Parse CSV with proper handling of quoted fields
+            const parseCSVLine = (line) => {
+                const result = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        result.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                result.push(current.trim());
+                return result;
+            };
+            
+            const headers = parseCSVLine(lines[0]).map(h => h.replace(/^"/, '').replace(/"$/, ''));
+            console.log('Headers:', headers);
+            
+            const dishes = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]).map(v => v.replace(/^"/, '').replace(/"$/, ''));
+                console.log(`Row ${i} values:`, values);
+                
+                if (values.length >= headers.length) {
+                    const dish = {};
+                    headers.forEach((header, index) => {
+                        dish[header] = values[index] || '';
+                    });
+                    console.log('Parsed dish:', dish);
+                    dishes.push(dish);
+                } else {
+                    console.log(`Row ${i} has insufficient columns: ${values.length} vs ${headers.length}`);
+                }
+            }
+            
+            console.log('Final dishes array:', dishes);
+            return dishes;
+        }
+        
+        // Populate season dropdown with unique seasons
+        function populateSeasonDropdown() {
+            const seasonSelect = document.getElementById('seasonSelect');
+            const seasons = [...new Set(allDishes.map(dish => dish.Season).filter(Boolean))];
+            
+            seasonSelect.innerHTML = '<option value="">Select Season</option>';
+            seasons.forEach(season => {
+                const option = document.createElement('option');
+                option.value = season;
+                option.textContent = season;
+                seasonSelect.appendChild(option);
+            });
+        }
+        
+        // Populate rotation dropdown based on selected season
+        function populateRotationDropdown(season) {
+            const rotationSelect = document.getElementById('rotationSelect');
+            const rotations = [...new Set(allDishes
+                .filter(dish => dish.Season === season)
+                .map(dish => dish.Rotation)
+                .filter(Boolean))];
+            
+            rotationSelect.innerHTML = '<option value="">Select Rotation</option>';
+            rotations.forEach(rotation => {
+                const option = document.createElement('option');
+                option.value = rotation;
+                option.textContent = rotation;
+                rotationSelect.appendChild(option);
+            });
+            
+            rotationSelect.disabled = !season;
+        }
+        
+        // Filter dishes by season and rotation
+        function filterDishesBySeasonRotation(season, rotation) {
+            return allDishes.filter(dish => 
+                dish.Season === season && dish.Rotation === rotation
+            );
+        }
+        
+        // Load labels for selected season and rotation
+        function loadLabels() {
+            const season = document.getElementById('seasonSelect').value;
+            const rotation = document.getElementById('rotationSelect').value;
+            
+            if (!season || !rotation) {
+                alert('Please select both Season and Rotation');
+                return;
+            }
+            
+            filteredDishes = filterDishesBySeasonRotation(season, rotation);
+            
+            if (filteredDishes.length === 0) {
+                alert('No dishes found for the selected Season and Rotation');
+                return;
+            }
+            
+            currentLabelIndex = 0;
+            updateLabelDisplay();
+            updateNavigationButtons();
+            document.getElementById('downloadAllBtn').disabled = false;
+            document.getElementById('downloadSingleBtn').disabled = false;
+        }
+        
+        // Update label display with current dish data
+        function updateLabelDisplay() {
+            if (filteredDishes.length === 0) return;
+            
+            const dish = filteredDishes[currentLabelIndex];
+            const bestByDate = document.getElementById('bestBy').value;
+            
+            console.log('Updating label display for dish:', dish);
+            
+            // Update preview elements
+            document.getElementById('previewDish').textContent = dish['Dish Name'] || 'Unknown Dish';
+            document.getElementById('previewSubtitle').textContent = dish['Dish Subtitle'] || '';
+            document.getElementById('previewWeight').textContent = dish['Net Wt'] || dish['Net Weight'] || '-';
+            document.getElementById('previewBestBy').textContent = formatDateWithDay(bestByDate);
+            document.getElementById('previewIngredients').textContent = dish.Ingredients || '-';
+            document.getElementById('previewAllergens').textContent = dish.Allergens || 'None';
+            document.getElementById('previewChefInstructions').innerHTML = formatInstructions(dish['Chef Instructions'] || '-');
+            document.getElementById('previewFastInstructions').innerHTML = formatInstructions(dish['Fast Instructions'] || '-');
+            
+            // Update brand color from CSV Color column
+            if (dish.Color) {
+                const colorMapping = {
+                    'Green': 'green',
+                    'Red': 'red', 
+                    'Blue': 'blue',
+                    'Orange': 'orange',
+                    'Gray': 'gray'
+                };
+                const mappedColor = colorMapping[dish.Color] || 'green';
+                document.getElementById('brandColor').value = mappedColor;
+            }
+            
+            applyBranding();
+            fitTitleToRow();
+            updateLabelCounter();
+        }
+        
+        // Update label counter display
+        function updateLabelCounter() {
+            const counter = document.getElementById('labelCounter');
+            counter.textContent = `Label ${currentLabelIndex + 1} of ${filteredDishes.length}`;
+        }
+        
+        // Navigation functions
+        function previousLabel() {
+            if (currentLabelIndex > 0) {
+                currentLabelIndex--;
+                updateLabelDisplay();
+                updateNavigationButtons();
+            }
+        }
+        
+        function nextLabel() {
+            if (currentLabelIndex < filteredDishes.length - 1) {
+                currentLabelIndex++;
+                updateLabelDisplay();
+                updateNavigationButtons();
+            }
+        }
+        
+        // Update navigation button states
+        function updateNavigationButtons() {
+            document.getElementById('prevLabel').disabled = currentLabelIndex === 0;
+            document.getElementById('nextLabel').disabled = currentLabelIndex === filteredDishes.length - 1;
+        }
+        
+        // Calculate Best By Date: Tuesday 5 days after next Friday
+        function calculateBestByDate() {
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            
+            // Find next Friday
+            let daysUntilFriday;
+            if (dayOfWeek <= 5) { // Sunday (0) to Friday (5)
+                daysUntilFriday = 5 - dayOfWeek;
+            } else { // Saturday (6)
+                daysUntilFriday = 6; // Next Friday is 6 days away
+            }
+            
+            const nextFriday = new Date(today);
+            nextFriday.setDate(today.getDate() + daysUntilFriday);
+            
+            // Add 5 days to get Tuesday
+            const bestByDate = new Date(nextFriday);
+            bestByDate.setDate(nextFriday.getDate() + 5);
+            
+            return bestByDate.toISOString().split('T')[0];
+        }
+        
         function formatDateWithDay(dateString) {
             if (!dateString) return 'Thu, 10/20/2025';
             const date = new Date(dateString);
@@ -688,29 +1157,74 @@
             return '<ol>' + listItems + '</ol>';
         }
         
-        function updateLabel() {
-            document.getElementById('previewDish').textContent = document.getElementById('dishName').value;
-            document.getElementById('previewSubtitle').textContent = document.getElementById('dishSubtitle').value;
-            document.getElementById('previewWeight').textContent = document.getElementById('netWeight').value;
-            document.getElementById('previewBestBy').textContent = formatDateWithDay(document.getElementById('bestBy').value);
-            document.getElementById('previewIngredients').textContent = document.getElementById('ingredients').value;
-            document.getElementById('previewAllergens').textContent = document.getElementById('allergens').value;
-            document.getElementById('previewChefInstructions').innerHTML = formatInstructions(document.getElementById('chefInstructions').value);
-            document.getElementById('previewFastInstructions').innerHTML = formatInstructions(document.getElementById('fastInstructions').value);
-            applyBranding();
-            fitTitleToRow();
+        // Batch PDF generation with ZIP packaging
+        async function downloadAllPDFs() {
+            if (filteredDishes.length === 0) {
+                alert('No dishes loaded. Please select Season and Rotation first.');
+                return;
+            }
+            
+            const bestByDate = document.getElementById('bestBy').value;
+            if (!bestByDate) {
+                alert('Please enter a Best By Date');
+                return;
+            }
+            
+            try {
+                const zip = new JSZip();
+                const season = document.getElementById('seasonSelect').value;
+                const rotation = document.getElementById('rotationSelect').value;
+                
+                // Show loading message
+                const downloadBtn = document.getElementById('downloadAllBtn');
+                const originalText = downloadBtn.textContent;
+                downloadBtn.textContent = 'Generating PDFs...';
+                downloadBtn.disabled = true;
+                
+                // Generate PDF for each dish
+                for (let i = 0; i < filteredDishes.length; i++) {
+                    const dish = filteredDishes[i];
+                    const pdfBlob = await createPDFForDish(dish, bestByDate);
+                    
+                    // Create filename
+                    const dishName = dish['Dish Name'].replace(/[^a-zA-Z0-9]/g, '_');
+                    const filename = `${season}_${rotation}_${dishName}.pdf`;
+                    
+                    zip.file(filename, pdfBlob);
+                }
+                
+                // Generate ZIP file
+                const zipBlob = await zip.generateAsync({type: 'blob'});
+                
+                // Download ZIP
+                const zipFilename = `${season}_${rotation}_labels_${new Date().toISOString().split('T')[0]}.zip`;
+                downloadZip(zipBlob, zipFilename);
+                
+                // Reset button
+                downloadBtn.textContent = originalText;
+                downloadBtn.disabled = false;
+                
+            } catch (error) {
+                console.error('Error generating PDFs:', error);
+                alert('Error generating PDFs. Please try again.');
+                
+                // Reset button
+                const downloadBtn = document.getElementById('downloadAllBtn');
+                downloadBtn.textContent = 'Download All PDFs';
+                downloadBtn.disabled = false;
+            }
         }
         
-        // Auto-update on input change
-        document.querySelectorAll('input, textarea, select').forEach(element => {
-            element.addEventListener('input', updateLabel);
-        });
-        
-        function printLabel() {
-            window.print();
-        }
-        
-        async function generatePDF() {
+        // Create PDF for a single dish
+        async function createPDFForDish(dishData, bestByDate) {
+            // Temporarily update the preview with this dish's data
+            const originalIndex = currentLabelIndex;
+            const originalDish = filteredDishes[currentLabelIndex];
+            
+            // Update preview to current dish
+            filteredDishes[currentLabelIndex] = dishData;
+            updateLabelDisplay();
+            
             const { jsPDF } = window.jspdf;
             const label = document.getElementById('labelPreview');
             
@@ -718,43 +1232,187 @@
             const canvas = await html2canvas(label, {
                 scale: 3, // Higher scale for better quality
                 useCORS: true,
-                logging: false
+                logging: false,
+                backgroundColor: '#ffffff'
             });
             
             // Create PDF with bleed area (trim + bleed on all sides)
-            const bleed = 0.125; // 1/8" bleed
+            const bleed = 0.25; // 1/4" bleed
             const pdf = new jsPDF({
                 orientation: 'landscape',
                 unit: 'in',
-                format: [3.26 + (bleed * 2), 4.25 + (bleed * 2)] // Add bleed to both dimensions
+                format: [3 + (bleed * 2), 4 + (bleed * 2)] // Add bleed to both dimensions
             });
             
             const imgData = canvas.toDataURL('image/png');
             // Position image to account for bleed area
-            pdf.addImage(imgData, 'PNG', bleed, bleed, 4.25, 3.26);
+            pdf.addImage(imgData, 'PNG', bleed, bleed, 4, 3);
             
-            // Download the PDF
-            const dishName = document.getElementById('dishName').value.replace(/\s+/g, '_');
-            pdf.save(`meal_label_${dishName}.pdf`);
+            // Add crop marks
+            addCropMarks(pdf, bleed);
+            
+            // Restore original state
+            filteredDishes[currentLabelIndex] = originalDish;
+            currentLabelIndex = originalIndex;
+            updateLabelDisplay();
+            
+            return pdf.output('blob');
         }
         
-        // Initialize with today's dates
-        window.onload = function() {
-            const today = new Date();
-            const bestByDate = new Date(today);
-            bestByDate.setDate(bestByDate.getDate() + 5); // Default 5 days from now
+        // Add crop marks to PDF
+        function addCropMarks(pdf, bleed) {
+            const cropMarkLength = 0.125; // 1/8 inch
+            const cropMarkThickness = 0.01; // Very thin lines
             
-            document.getElementById('bestBy').value = bestByDate.toISOString().split('T')[0];
+            // Set line width
+            pdf.setLineWidth(cropMarkThickness);
             
-            updateLabel();
+            // Top-left crop mark
+            pdf.line(bleed - cropMarkLength, bleed, bleed + cropMarkLength, bleed);
+            pdf.line(bleed, bleed - cropMarkLength, bleed, bleed + cropMarkLength);
+            
+            // Top-right crop mark
+            pdf.line(4 + bleed - cropMarkLength, bleed, 4 + bleed + cropMarkLength, bleed);
+            pdf.line(4 + bleed, bleed - cropMarkLength, 4 + bleed, bleed + cropMarkLength);
+            
+            // Bottom-left crop mark
+            pdf.line(bleed - cropMarkLength, 3 + bleed, bleed + cropMarkLength, 3 + bleed);
+            pdf.line(bleed, 3 + bleed - cropMarkLength, bleed, 3 + bleed + cropMarkLength);
+            
+            // Bottom-right crop mark
+            pdf.line(4 + bleed - cropMarkLength, 3 + bleed, 4 + bleed + cropMarkLength, 3 + bleed);
+            pdf.line(4 + bleed, 3 + bleed - cropMarkLength, 4 + bleed, 3 + bleed + cropMarkLength);
+        }
+        
+        // Download ZIP file
+        function downloadZip(zipBlob, filename) {
+            const url = URL.createObjectURL(zipBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function printLabel() {
+            window.print();
+        }
+        
+        async function generatePDF() {
+            if (filteredDishes.length === 0) {
+                alert('No dishes loaded. Please select Season and Rotation first.');
+                return;
+            }
+            
+            const bestByDate = document.getElementById('bestBy').value;
+            if (!bestByDate) {
+                alert('Please enter a Best By Date');
+                return;
+            }
+            
+            const dish = filteredDishes[currentLabelIndex];
+            const pdfBlob = await createPDFForDish(dish, bestByDate);
+            
+            // Create filename
+            const season = document.getElementById('seasonSelect').value;
+            const rotation = document.getElementById('rotationSelect').value;
+            const dishName = dish['Dish Name'].replace(/[^a-zA-Z0-9]/g, '_');
+            const filename = `${season}_${rotation}_${dishName}.pdf`;
+            
+            // Download single PDF
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Initialize with today's dates and load sheet data
+        window.onload = async function() {
+            console.log('Starting initialization...');
+            
+            // Set Best By Date to Tuesday 5 days after next Friday
+            document.getElementById('bestBy').value = calculateBestByDate();
+            
+            // Load dish data from Google Sheets
+            console.log('Loading dish data...');
+            await fetchDishesFromSheet();
+            
+            console.log('All dishes loaded:', allDishes.length);
+            
+            // Auto-load first season and rotation if available
+            if (allDishes.length > 0) {
+                console.log('Auto-loading first season and rotation...');
+                const seasons = [...new Set(allDishes.map(dish => dish.Season).filter(Boolean))];
+                console.log('Available seasons:', seasons);
+                
+                if (seasons.length > 0) {
+                    const firstSeason = seasons[0];
+                    console.log('Selecting first season:', firstSeason);
+                    document.getElementById('seasonSelect').value = firstSeason;
+                    populateRotationDropdown(firstSeason);
+                    
+                    const rotations = [...new Set(allDishes
+                        .filter(dish => dish.Season === firstSeason)
+                        .map(dish => dish.Rotation)
+                        .filter(Boolean))];
+                    
+                    console.log('Available rotations for', firstSeason, ':', rotations);
+                    
+                    if (rotations.length > 0) {
+                        const firstRotation = rotations[0];
+                        console.log('Selecting first rotation:', firstRotation);
+                        document.getElementById('rotationSelect').value = firstRotation;
+                        document.getElementById('loadLabelsBtn').disabled = false;
+                        
+                        // Auto-load the labels
+                        console.log('Auto-loading labels...');
+                        loadLabels();
+                    }
+                }
+            } else {
+                console.log('No dishes available to load');
+            }
+            
             // Initialize scaling after content exists
             initializePreviewScaling();
+            
+            // Brand color change handler
             const colorSelect = document.getElementById('brandColor');
             if (colorSelect) {
-                colorSelect.addEventListener('change', updateLabel);
+                colorSelect.addEventListener('change', () => {
+                    applyBranding();
+                });
             }
-            applyBranding();
-            fitTitleToRow();
+            
+            // Season change handler
+            const seasonSelect = document.getElementById('seasonSelect');
+            seasonSelect.addEventListener('change', (e) => {
+                populateRotationDropdown(e.target.value);
+                document.getElementById('loadLabelsBtn').disabled = !e.target.value;
+            });
+            
+            // Rotation change handler
+            const rotationSelect = document.getElementById('rotationSelect');
+            rotationSelect.addEventListener('change', (e) => {
+                const season = document.getElementById('seasonSelect').value;
+                document.getElementById('loadLabelsBtn').disabled = !season || !e.target.value;
+            });
+            
+            // Best By date change handler
+            const bestByInput = document.getElementById('bestBy');
+            bestByInput.addEventListener('change', () => {
+                if (filteredDishes.length > 0) {
+                    updateLabelDisplay();
+                }
+            });
+            
+            // Grid toggle handler
             const gridToggle = document.getElementById('toggleGridLines');
             const label = document.getElementById('labelPreview');
             if (gridToggle && label) {
@@ -766,6 +1424,10 @@
                     }
                 });
             }
+            
+            // Initial branding
+            applyBranding();
+            fitTitleToRow();
         };
 
         // Branding application based on color selection
