@@ -262,8 +262,9 @@
         
         /* Label Styles - 3x4 Grid System */
         .label {
-            width: 4in;
-            height: 3in;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 4/3;
             background: white;
             padding: 0;
             margin: 0 auto;
@@ -669,7 +670,6 @@
         
         <div class="main-layout">
             <div class="preview-section">
-                <h2>Label Preview</h2>
                 <div class="scale-wrapper" id="scaleWrapper">
                     <div class="label" id="labelPreview">
                     <div class="grid-guides" aria-hidden="true"></div>
@@ -747,20 +747,9 @@
                 <div class="preview-scale-controls" id="previewScaleControls">
                     <div class="preview-scale-row">
                         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-                            <input type="checkbox" id="actualSizeToggle" checked>
-                            <span>Actual size on screen</span>
+                            <input type="checkbox" id="actualSizeToggle">
+                            <span>Actual size</span>
                         </label>
-                        <input class="scale-slider" id="scaleSlider" type="range" min="50" max="200" step="1" value="100" aria-label="Scale percent">
-                        <div style="display:flex;align-items:center;gap:6px;">
-                            <input class="scale-percent-input" id="scaleInput" type="number" min="50" max="200" step="1" value="100" aria-label="Scale percent">%
-                        </div>
-                        <button type="button" class="secondary" id="resetCalibration">Reset</button>
-                    </div>
-                    <div class="preview-scale-row" style="align-items:flex-start;">
-                        <div style="display:flex;flex-direction:column;gap:6px;">
-                            <div style="font-size:12px;color:#555;">Calibration square (should measure exactly 1 inch by 1 inch)</div>
-                            <div class="calibration-box" aria-label="1 inch calibration square"></div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1489,72 +1478,43 @@
         function initializePreviewScaling() {
             const scaleWrapper = document.getElementById('scaleWrapper');
             const toggle = document.getElementById('actualSizeToggle');
-            const slider = document.getElementById('scaleSlider');
-            const input = document.getElementById('scaleInput');
-            const resetBtn = document.getElementById('resetCalibration');
             
             const STORAGE_KEY_ENABLED = 'labelPreview.actualSize.enabled';
-            const STORAGE_KEY_SCALE = 'labelPreview.actualSize.scalePercent';
             
             function readInitial() {
                 const enabledStored = localStorage.getItem(STORAGE_KEY_ENABLED);
-                const scaleStored = localStorage.getItem(STORAGE_KEY_SCALE);
-                const enabled = enabledStored === null ? true : enabledStored === 'true';
-                const scalePercent = scaleStored === null ? 100 : Math.max(50, Math.min(200, parseInt(scaleStored, 10) || 100));
-                return { enabled, scalePercent };
+                const enabled = enabledStored === null ? false : enabledStored === 'true';
+                return { enabled };
             }
             
-            function applyScale(enabled, scalePercent) {
+            function applyScale(enabled) {
                 if (!enabled) {
                     scaleWrapper.style.transform = 'none';
                     return;
                 }
-                const scale = scalePercent / 100;
+                // Calculate scale to make label actual size (4in = 384px at 96 DPI)
+                const actualWidth = 4 * 96; // 4 inches in pixels
+                const containerWidth = scaleWrapper.parentElement.clientWidth;
+                const scale = Math.min(actualWidth / containerWidth, 1);
                 scaleWrapper.style.transform = `scale(${scale})`;
             }
             
-            function persist(enabled, scalePercent) {
+            function persist(enabled) {
                 localStorage.setItem(STORAGE_KEY_ENABLED, String(enabled));
-                localStorage.setItem(STORAGE_KEY_SCALE, String(scalePercent));
             }
             
-            function syncUI(enabled, scalePercent) {
+            function syncUI(enabled) {
                 toggle.checked = enabled;
-                slider.value = String(scalePercent);
-                input.value = String(scalePercent);
             }
             
             const initial = readInitial();
-            syncUI(initial.enabled, initial.scalePercent);
-            applyScale(initial.enabled, initial.scalePercent);
+            syncUI(initial.enabled);
+            applyScale(initial.enabled);
             
             toggle.addEventListener('change', () => {
                 const enabled = toggle.checked;
-                const scalePercent = parseInt(slider.value, 10);
-                applyScale(enabled, scalePercent);
-                persist(enabled, scalePercent);
-            });
-            
-            function updateFromPercent(v) {
-                const clamped = Math.max(50, Math.min(200, v));
-                syncUI(toggle.checked, clamped);
-                applyScale(toggle.checked, clamped);
-                persist(toggle.checked, clamped);
-            }
-            
-            slider.addEventListener('input', () => {
-                updateFromPercent(parseInt(slider.value, 10) || 100);
-            });
-            
-            input.addEventListener('change', () => {
-                updateFromPercent(parseInt(input.value, 10) || 100);
-            });
-            
-            resetBtn.addEventListener('click', () => {
-                updateFromPercent(100);
-                toggle.checked = true;
-                applyScale(true, 100);
-                persist(true, 100);
+                applyScale(enabled);
+                persist(enabled);
             });
         }
     </script>
