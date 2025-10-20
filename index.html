@@ -549,6 +549,8 @@
             margin-top: 4px;
             padding-top: 4px;
             border-top: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 4px;
             font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
         }
         
@@ -570,7 +572,7 @@
         
         .allergens-text {
             color: #333;
-            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
+            font-size: 0.875em !important; /* 7pt equivalent for screen, maintains 7pt minimum for print */
             font-weight: 400;
         }
         
@@ -733,19 +735,19 @@
                     
                     <!-- Cells 6 & 9: Ingredients & Info -->
                     <div class="cell-6-9">
-                        <div class="ingredients-label">INGREDIENTS:</div>
+                        <div class="ingredients-label">Ingredients:</div>
                         <div class="ingredients-list" id="previewIngredients">Please select a season and rotation to load dish data</div>
                         <div class="allergens-section">
-                            <span class="allergens-label">ALLERGENS:</span>
+                            <span class="allergens-label">Allergens:</span>
                             <span class="allergens-text" id="previewAllergens">-</span>
                         </div>
                         <div class="meta-block">
                             <div class="meta-row">
-                                <span class="subsection-label">BEST BY:</span>
+                                <span class="subsection-label">Best By:</span>
                                 <span class="meta-text" id="previewBestBy">-</span>
                             </div>
                             <div class="meta-row">
-                                <span class="subsection-label">NET WT:</span>
+                                <span class="subsection-label">Net Weight:</span>
                                 <span class="meta-text" id="previewWeight">-</span>
                             </div>
                         </div>
