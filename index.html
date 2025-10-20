@@ -780,14 +780,6 @@
                     </div>
                     </div>
                 </div>
-                <div class="preview-scale-controls" id="previewScaleControls">
-                    <div class="preview-scale-row">
-                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-                            <input type="checkbox" id="actualSizeToggle">
-                            <span>Actual size</span>
-                        </label>
-                    </div>
-                </div>
             </div>
             
             <div class="controls-section">
@@ -819,29 +811,8 @@
                 </div>
                 
                 <div class="button-group">
-                    <button onclick="loadLabels()" id="loadLabelsBtn" disabled>Load Labels</button>
+                    <button onclick="generatePDF()" id="downloadSingleBtn" disabled>Download Current PDF</button>
                     <button onclick="downloadAllPDFs()" id="downloadAllBtn" disabled class="secondary">Download All PDFs</button>
-                    <button onclick="generatePDF()" id="downloadSingleBtn" disabled class="secondary">Download Current PDF</button>
-                    <button onclick="printLabel()" class="secondary">Print Current Label</button>
-                </div>
-                
-                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
-                    <h3 style="margin-bottom: 15px;">Display Options</h3>
-                    <div class="form-group" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                        <div style="flex:1;min-width:220px;">
-                            <label for="brandColor">Brand Color</label>
-                            <select id="brandColor">
-                                <option value="green" selected>Green (#444E20)</option>
-                                <option value="orange">Orange (#A15408)</option>
-                                <option value="gray">Gray (#BDC7C3)</option>
-                                <option value="red">Red (#520212)</option>
-                                <option value="blue">Blue (#003854)</option>
-                            </select>
-                        </div>
-                        <label style="display:flex;align-items:center;gap:8px;margin-top:22px;cursor:pointer;white-space:nowrap;">
-                            <input type="checkbox" id="toggleGridLines"> Show grid lines
-                        </label>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1102,7 +1073,7 @@
                     'Gray': 'gray'
                 };
                 const mappedColor = colorMapping[dish.Color] || 'green';
-                document.getElementById('brandColor').value = mappedColor;
+                // Color selector removed, using default green branding
             }
             
             applyBranding();
@@ -1393,7 +1364,6 @@
                         const firstRotation = rotations[0];
                         console.log('Selecting first rotation:', firstRotation);
                         document.getElementById('rotationSelect').value = firstRotation;
-                        document.getElementById('loadLabelsBtn').disabled = false;
                         
                         // Auto-load the labels
                         console.log('Auto-loading labels...');
@@ -1407,26 +1377,24 @@
             // Initialize scaling after content exists
             initializePreviewScaling();
             
-            // Brand color change handler
-            const colorSelect = document.getElementById('brandColor');
-            if (colorSelect) {
-                colorSelect.addEventListener('change', () => {
-                    applyBranding();
-                });
-            }
-            
             // Season change handler
             const seasonSelect = document.getElementById('seasonSelect');
             seasonSelect.addEventListener('change', (e) => {
                 populateRotationDropdown(e.target.value);
-                document.getElementById('loadLabelsBtn').disabled = !e.target.value;
+                // Auto-load labels if rotation is already selected
+                const rotation = document.getElementById('rotationSelect').value;
+                if (rotation) {
+                    loadLabels();
+                }
             });
             
             // Rotation change handler
             const rotationSelect = document.getElementById('rotationSelect');
             rotationSelect.addEventListener('change', (e) => {
                 const season = document.getElementById('seasonSelect').value;
-                document.getElementById('loadLabelsBtn').disabled = !season || !e.target.value;
+                if (season && e.target.value) {
+                    loadLabels();
+                }
             });
             
             // Best By date change handler
@@ -1457,8 +1425,7 @@
 
         // Branding application based on color selection
         function applyBranding() {
-            const select = document.getElementById('brandColor');
-            const chosen = select ? select.value : 'green';
+            const chosen = 'green'; // Default to green since we removed the color selector
             const labelEl = document.querySelector('.label');
             const rowEl = document.querySelector('.cell-1');
             const logoImg = document.getElementById('brandLogo');
@@ -1512,46 +1479,8 @@
 
         // Preview scaling logic (on-screen only)
         function initializePreviewScaling() {
-            const scaleWrapper = document.getElementById('scaleWrapper');
-            const toggle = document.getElementById('actualSizeToggle');
-            
-            const STORAGE_KEY_ENABLED = 'labelPreview.actualSize.enabled';
-            
-            function readInitial() {
-                const enabledStored = localStorage.getItem(STORAGE_KEY_ENABLED);
-                const enabled = enabledStored === null ? false : enabledStored === 'true';
-                return { enabled };
-            }
-            
-            function applyScale(enabled) {
-                if (!enabled) {
-                    scaleWrapper.style.transform = 'none';
-                    return;
-                }
-                // Calculate scale to make label actual size (4in = 384px at 96 DPI)
-                const actualWidth = 4 * 96; // 4 inches in pixels
-                const containerWidth = scaleWrapper.parentElement.clientWidth;
-                const scale = Math.min(actualWidth / containerWidth, 1);
-                scaleWrapper.style.transform = `scale(${scale})`;
-            }
-            
-            function persist(enabled) {
-                localStorage.setItem(STORAGE_KEY_ENABLED, String(enabled));
-            }
-            
-            function syncUI(enabled) {
-                toggle.checked = enabled;
-            }
-            
-            const initial = readInitial();
-            syncUI(initial.enabled);
-            applyScale(initial.enabled);
-            
-            toggle.addEventListener('change', () => {
-                const enabled = toggle.checked;
-                applyScale(enabled);
-                persist(enabled);
-            });
+            // No longer needed since we removed the actual size toggle
+            // Labels now display at full width by default
         }
     </script>
 </body>
