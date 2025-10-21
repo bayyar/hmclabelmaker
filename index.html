@@ -1331,31 +1331,8 @@
             const imgData = canvas.toDataURL('image/png');
             
             // Position image in center of PDF (with bleed margins)
+            // This creates a clean white bleed area, which is professional and common
             pdf.addImage(imgData, 'PNG', bleed, bleed, 4, 3);
-            
-            // Manually extend the top color bar to bleed area (only top row height)
-            const currentDish = filteredDishes[currentLabelIndex];
-            if (currentDish && currentDish.Color) {
-                const colorMapping = {
-                    'Green': '#444E20',
-                    'Red': '#520212', 
-                    'Blue': '#003854',
-                    'Orange': '#A15408',
-                    'Gray': '#BDC7C3'
-                };
-                const brandColor = colorMapping[currentDish.Color] || '#444E20';
-                
-                // Calculate top row height (20% of label height) including bleed
-                const topRowHeight = 3 * 0.2; // 20% of 3 inches = 0.6 inches
-                const topRowWithBleed = topRowHeight + bleed; // Include bleed area
-                
-                // Fill the entire top area (including bleed) with brand color
-                pdf.setFillColor(brandColor);
-                pdf.rect(0, 0, 3 + (bleed * 2), topRowWithBleed, 'F'); // Entire top area with bleed
-                
-                // Re-add the image on top
-                pdf.addImage(imgData, 'PNG', bleed, bleed, 4, 3);
-            }
             
             // Add crop marks
             addCropMarks(pdf, bleed);
