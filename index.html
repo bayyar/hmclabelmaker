@@ -38,12 +38,21 @@
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .app-header h1 {
             color: #333;
             font-weight: 700;
             font-size: 28px;
+            margin: 0;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
         }
         
         .main-layout {
@@ -133,10 +142,10 @@
             flex-direction: column;
             gap: 15px;
             margin-bottom: 25px;
-            padding: 20px;
-            background: #f8fafc;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
+            padding: 20px 0;
+            background: transparent; /* Remove background shading */
+            border-radius: 0;
+            border: none;
         }
         
         .label-counter {
@@ -200,18 +209,21 @@
             font-size: 13px;
         }
         
-        input, textarea {
-            padding: 8px 10px;
+        input, textarea, select {
+            padding: 12px 10px; /* Match button height */
             border: 1px solid #ddd;
             border-radius: 5px;
             font-family: inherit;
             font-size: 14px;
             width: 100%;
+            height: 44px; /* Match button height */
+            box-sizing: border-box;
         }
         
         textarea {
             resize: vertical;
             min-height: 70px;
+            height: auto; /* Override fixed height for textarea */
         }
         
         .button-group {
@@ -231,6 +243,9 @@
             cursor: pointer;
             font-size: 15px;
             width: 100%;
+            height: 44px; /* Match input height */
+            box-sizing: border-box;
+            transition: background-color 0.2s ease;
         }
         
         button:hover {
@@ -243,6 +258,15 @@
         
         button.secondary:hover {
             background: #4b5563;
+        }
+        
+        button:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+        
+        button:disabled:hover {
+            background: #cbd5e1;
         }
         
         /* Mobile responsive layout */
@@ -276,10 +300,10 @@
             position: relative;
             font-family: 'Karla', sans-serif;
             box-sizing: border-box;
-            /* Solid black border for 3x4 trim area - always visible */
-            border: 0.5px solid #000 !important;
-            box-shadow: 0 0 0 0.5px #000;
-            outline: 0.5px solid #000;
+            /* No border for preview - clean appearance */
+            border: none;
+            box-shadow: none;
+            outline: none;
             z-index: 10;
         }
         
@@ -287,10 +311,10 @@
         .label::before {
             content: '';
             position: absolute;
-            top: -0.25in; /* 1/4" bleed */
-            left: -0.25in;
-            right: -0.25in;
-            bottom: -0.25in;
+            top: -0.125in; /* 1/8" bleed */
+            left: -0.125in;
+            right: -0.125in;
+            bottom: -0.125in;
             background: white;
             z-index: -2;
             border-radius: 0;
@@ -304,10 +328,10 @@
         .label::after {
             content: '';
             position: absolute;
-            top: -0.25in;
-            left: -0.25in;
-            right: -0.25in;
-            height: calc(20% + 0.25in); /* Top row height + bleed */
+            top: -0.125in;
+            left: -0.125in;
+            right: -0.125in;
+            height: calc(20% + 0.125in); /* Top row height + bleed */
             background: var(--brand-bg, var(--color-green));
             z-index: -1;
             pointer-events: none;
@@ -339,10 +363,10 @@
         /* Crop marks at corners of 3x4 border */
         .crop-marks {
             position: absolute;
-            top: -0.25in;
-            left: -0.25in;
-            right: -0.25in;
-            bottom: -0.25in;
+            top: -0.125in;
+            left: -0.125in;
+            right: -0.125in;
+            bottom: -0.125in;
             pointer-events: none;
             z-index: 10;
             display: none;
@@ -436,9 +460,9 @@
             content: '';
             position: absolute;
             /* Extend background to bleed area edges */
-            top: -0.25in;
-            left: -0.25in;
-            right: -0.25in;
+            top: -0.125in;
+            left: -0.125in;
+            right: -0.125in;
             bottom: 0;
             background: var(--brand-bg, var(--color-green));
             z-index: -1;
@@ -527,73 +551,74 @@
             flex-direction: column;
             line-height: 1.3;
             padding: 12px;
-            background: transparent;
+            background: transparent; /* Remove gray background */
             overflow: hidden;
             font-size: 0.875em; /* Ensure consistent base font size */
-            border: 0.5px solid #000;
-            margin: 4px;
+            border: none; /* Remove border */
+            border-radius: 0; /* Remove border radius */
+            margin: 0; /* Remove margin for proper alignment */
+            border-left: 2px solid #ddd; /* Add vertical line separator */
+            margin-left: 8px; /* Add some space from the separator */
         }
         
         .cell-6-9 .ingredients-label {
             font-weight: 700;
-            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
-            margin-bottom: 3px;
+            margin-bottom: 4px; /* Consistent spacing */
         }
         
         .ingredients-list {
             color: #333;
-            margin-bottom: 6px;
-            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
+            margin-bottom: 8px; /* Consistent spacing */
             line-height: 1.3;
             font-weight: 400;
         }
         
         .allergens-section {
-            margin-top: 4px;
-            padding-top: 4px;
+            padding-top: 6px;
             border-top: 1px solid #ddd;
             border-bottom: 1px solid #ddd;
-            padding-bottom: 4px;
-            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
+            padding-bottom: 8px; /* Increased padding-bottom to match margin-top for better spacing */
         }
         
         .allergens-label {
             font-weight: 700;
-            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
         }
 
         .subsection-label {
             font-weight: 700;
-            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
         }
 
         .meta-text {
             color: #333;
-            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
             font-weight: 400;
+        }
+        
+        .meta-block {
+            padding: 8px 0; /* 8px vertical padding for the entire meta block */
+        }
+        
+        .meta-row {
+            padding: 2px 0; /* 2px vertical padding for Best By and Net Weight */
         }
         
         .allergens-text {
             color: #333;
-            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
             font-weight: 400;
         }
         
         .company-info {
-            margin-top: auto;
             padding-top: 8px;
             padding-bottom: 4px;
             border-top: 1px solid #ddd;
-            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
             color: #444;
-            line-height: 1.4;
             font-weight: 400;
+            font-size: 0.8125em; /* Smaller font size to match 6.5pt print size */
         }
         
         .company-name {
             font-weight: 600;
             margin-bottom: 2px;
-            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
+            font-size: 0.8125em; /* Smaller font size to match 6.5pt print size */
         }
         
         /* Cells 7-8 - Heating Instructions */
@@ -603,8 +628,8 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            padding: 8px;
-            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
+            padding: 12px 8px 8px 8px; /* Match top padding with right column */
+            font-size: 0.875em; /* Match font size with right column */
         }
         
         .chef-instructions, .fast-instructions {
@@ -614,12 +639,10 @@
         
         .instructions-title {
             font-weight: 700;
-            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
             margin-bottom: 4px;
         }
         
         .instructions-text {
-            font-size: 0.875em; /* 7pt equivalent for screen, maintains 7pt minimum for print */
             line-height: 1.4;
             color: #333;
             font-weight: 400;
@@ -672,26 +695,21 @@
             
             .cell-3 .label-text,
             .cell-3 .date-value,
-            .cell-3 .weight-text,
-            .cell-6-9 .ingredients-label,
-            .ingredients-list,
-            .allergens-section,
-            .allergens-label,
-            .subsection-label,
-            .meta-text,
-            .allergens-text {
+            .cell-3 .weight-text {
                 font-size: 7pt !important;
+            }
+            
+            .cell-6-9 {
+                font-size: 7pt !important; /* All child elements inherit this font size */
             }
             
             .company-info,
             .company-name {
-                font-size: 7pt !important; /* Company info standardized to 7pt minimum */
+                font-size: 6.5pt !important; /* Company info uses slightly larger 6.5pt font */
             }
             
-            .cell-7-8,
-            .instructions-title,
-            .instructions-text {
-                font-size: 7pt !important; /* Standardized to 7pt minimum */
+            .cell-7-8 {
+                font-size: 7pt !important; /* All child elements inherit this font size */
             }
             
             /* Ensure on-screen transforms do not affect print */
@@ -704,7 +722,10 @@
 <body>
     <div class="app-container">
         <div class="app-header">
-            <h1>Meal Label Generator</h1>
+            <h1>Hudson Meal Co. Label Generator</h1>
+            <div class="header-actions">
+                <button class="nav-button" onclick="window.open('https://docs.google.com/spreadsheets/d/1UugIwrAyHXOAgBrQcU9zFwIEOYg9-baJdoGCWSMIJNk/edit?gid=0#gid=0', '_blank')">Edit CSV</button>
+            </div>
         </div>
         
         <div class="main-layout">
@@ -804,6 +825,9 @@
                     <input type="date" id="bestBy" />
                 </div>
                 
+                <!-- Horizontal separator -->
+                <div style="border-top: 1px solid #e2e8f0; margin: 20px 0;"></div>
+                
                 <!-- Elegant Navigation Controls -->
                 <div class="label-navigation">
                     <div class="label-counter" id="labelCounter">Label 1 of 1</div>
@@ -812,6 +836,9 @@
                         <button class="nav-button" id="nextLabel" onclick="nextLabel()">Next →</button>
                     </div>
                 </div>
+                
+                <!-- Horizontal separator -->
+                <div style="border-top: 1px solid #e2e8f0; margin: 20px 0;"></div>
                 
                 <div class="button-group">
                     <button onclick="generatePDF()" id="downloadSingleBtn" disabled>Download Current PDF</button>
@@ -1236,7 +1263,7 @@
             });
             
             // Create PDF with bleed area (trim + bleed on all sides)
-            const bleed = 0.25; // 1/4" bleed
+            const bleed = 0.125; // 1/8" bleed
             const pdf = new jsPDF({
                 orientation: 'landscape',
                 unit: 'in',
@@ -1261,10 +1288,11 @@
         // Add crop marks to PDF
         function addCropMarks(pdf, bleed) {
             const cropMarkLength = 0.125; // 1/8 inch
-            const cropMarkThickness = 0.01; // Very thin lines
+            const cropMarkThickness = 0.005; // Very thin lines
             
-            // Set line width
+            // Set line width and color
             pdf.setLineWidth(cropMarkThickness);
+            pdf.setDrawColor(150, 150, 150); // Light gray color
             
             // Top-left crop mark
             pdf.line(bleed - cropMarkLength, bleed, bleed + cropMarkLength, bleed);
@@ -1428,7 +1456,9 @@
 
         // Branding application based on color selection
         function applyBranding() {
-            const chosen = 'green'; // Default to green since we removed the color selector
+            // Get color from current dish data
+            const dish = filteredDishes[currentLabelIndex];
+            const chosen = dish && dish.Color ? dish.Color.toLowerCase() : 'green';
             const labelEl = document.querySelector('.label');
             const rowEl = document.querySelector('.cell-1');
             const logoImg = document.getElementById('brandLogo');
