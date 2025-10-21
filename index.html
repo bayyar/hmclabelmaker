@@ -560,7 +560,7 @@
         }
 
         .brand-title h4 {
-            font-size: 3em; /* Increased to better align with logo height */
+            font-size: 3.6em; /* Increased by 20% from 3em */
             font-weight: 800;
             line-height: 1;
             color: inherit;
@@ -570,7 +570,7 @@
         }
 
         .brand-title .dish-subtitle {
-            font-size: 2em; /* Increased to better align with logo height */
+            font-size: 2.4em; /* Increased by 20% from 2em */
             font-weight: 400;
             font-style: italic;
             color: inherit;
@@ -722,11 +722,11 @@
             
             /* Ensure print maintains absolute font sizes */
             .brand-title h4 {
-                font-size: 20pt !important; /* Increased to better align with logo */
+                font-size: 24pt !important; /* Increased by 20% from 20pt */
             }
             
             .brand-title .dish-subtitle {
-                font-size: 14pt !important; /* Increased to better align with logo */
+                font-size: 16.8pt !important; /* Increased by 20% from 14pt */
             }
             
             .cell-3 .label-text,
@@ -1552,17 +1552,36 @@
             const titleEl = document.getElementById('previewDish');
             const subtitleEl = document.getElementById('previewSubtitle');
             if (!rowEl || !logoImg || !titleEl || !subtitleEl) return;
-            // Start from larger base sizes and shrink if overflow
-            let titleSize = 20; // pt - increased from 16.5pt
-            let subtitleSize = 14; // pt - increased from 11.25pt
-            titleEl.style.fontSize = titleSize + 'pt';
-            subtitleEl.style.fontSize = subtitleSize + 'pt';
+            
+            // Start from increased base sizes (20% larger)
+            let titleSize = 24; // pt - increased by 20% from 20pt
+            let subtitleSize = 16.8; // pt - increased by 20% from 14pt
+            
+            // First check if text fits on single line, if not, shrink
+            const checkTextFit = () => {
+                const titleWidth = titleEl.scrollWidth;
+                const subtitleWidth = subtitleEl.scrollWidth;
+                const containerWidth = titleEl.parentElement.offsetWidth;
+                return titleWidth <= containerWidth && subtitleWidth <= containerWidth;
+            };
+            
+            // Shrink if text doesn't fit on single line
+            let guard = 50;
+            while (!checkTextFit() && guard-- > 0) {
+                titleSize -= 0.5;
+                subtitleSize -= 0.4;
+                titleEl.style.fontSize = Math.max(7, titleSize) + 'pt';
+                subtitleEl.style.fontSize = Math.max(7, subtitleSize) + 'pt';
+            }
+            
+            // Then check if both lines fit vertically
             const maxHeight = logoImg.getBoundingClientRect().height - 4; // small breathing room
             const containerHeight = rowEl.getBoundingClientRect().height;
             const available = Math.min(maxHeight, containerHeight) - 6;
-            // Reduce until both lines fit
+            
+            // Reduce until both lines fit vertically
             const measure = () => titleEl.getBoundingClientRect().height + subtitleEl.getBoundingClientRect().height;
-            let guard = 40;
+            guard = 40;
             while (measure() > available && guard-- > 0) {
                 titleSize -= 0.5;
                 subtitleSize -= 0.4;
