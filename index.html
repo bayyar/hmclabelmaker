@@ -1345,14 +1345,13 @@
                 };
                 const brandColor = colorMapping[currentDish.Color] || '#444E20';
                 
-                // Calculate top row height (20% of label height)
-                const topRowHeight = 3 * 0.2; // 20% of 3 inches
+                // Calculate top row height (20% of label height) including bleed
+                const topRowHeight = 3 * 0.2; // 20% of 3 inches = 0.6 inches
+                const topRowWithBleed = topRowHeight + bleed; // Include bleed area
                 
-                // Fill only the top bleed area with brand color
+                // Fill the entire top area (including bleed) with brand color
                 pdf.setFillColor(brandColor);
-                pdf.rect(0, 0, 3 + (bleed * 2), bleed, 'F'); // Top bleed
-                pdf.rect(0, 0, bleed, topRowHeight + bleed, 'F'); // Left bleed (only to top row)
-                pdf.rect(3 + bleed, 0, bleed, topRowHeight + bleed, 'F'); // Right bleed (only to top row)
+                pdf.rect(0, 0, 3 + (bleed * 2), topRowWithBleed, 'F'); // Entire top area with bleed
                 
                 // Re-add the image on top
                 pdf.addImage(imgData, 'PNG', bleed, bleed, 4, 3);
