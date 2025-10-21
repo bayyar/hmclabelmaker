@@ -1312,22 +1312,16 @@
             const { jsPDF } = window.jspdf;
             const label = document.getElementById('labelPreview');
             
-            // Generate canvas from HTML including bleed area
-            const bleed = 0.125; // 1/8" bleed
-            const bleedPixels = bleed * 96; // Convert inches to pixels (96 DPI)
-            
+            // Generate canvas from HTML normally (no bleed capture)
             const canvas = await html2canvas(label, {
                 scale: 3, // Higher scale for better quality
                 useCORS: true,
                 logging: false,
-                backgroundColor: '#ffffff',
-                width: label.offsetWidth + (bleedPixels * 2),
-                height: label.offsetHeight + (bleedPixels * 2),
-                x: -bleedPixels,
-                y: -bleedPixels
+                backgroundColor: '#ffffff'
             });
             
             // Create PDF with bleed area (trim + bleed on all sides)
+            const bleed = 0.125; // 1/8" bleed
             const pdf = new jsPDF({
                 orientation: 'landscape',
                 unit: 'in',
@@ -1336,30 +1330,31 @@
             
             const imgData = canvas.toDataURL('image/png');
             
-            // Calculate proper dimensions maintaining aspect ratio
-            const pdfWidth = 3 + (bleed * 2);
-            const pdfHeight = 4 + (bleed * 2);
-            const canvasAspectRatio = canvas.width / canvas.height;
-            const pdfAspectRatio = pdfWidth / pdfHeight;
+            // Position image in center of PDF (with bleed margins)
+            pdf.addImage(imgData, 'PNG', bleed, bleed, 4, 3);
             
-            let imgWidth, imgHeight, imgX, imgY;
-            
-            if (canvasAspectRatio > pdfAspectRatio) {
-                // Canvas is wider than PDF, fit to width
-                imgWidth = pdfWidth;
-                imgHeight = pdfWidth / canvasAspectRatio;
-                imgX = 0;
-                imgY = (pdfHeight - imgHeight) / 2;
-            } else {
-                // Canvas is taller than PDF, fit to height
-                imgHeight = pdfHeight;
-                imgWidth = pdfHeight * canvasAspectRatio;
-                imgX = (pdfWidth - imgWidth) / 2;
-                imgY = 0;
+            // Manually extend the top color bar to bleed area
+            const currentDish = filteredDishes[currentLabelIndex];
+            if (currentDish && currentDish.Color) {
+                const colorMapping = {
+                    'Green': '#444E20',
+                    'Red': '#520212', 
+                    'Blue': '#003854',
+                    'Orange': '#A15408',
+                    'Gray': '#BDC7C3'
+                };
+                const brandColor = colorMapping[currentDish.Color] || '#444E20';
+                
+                // Fill bleed area with brand color
+                pdf.setFillColor(brandColor);
+                pdf.rect(0, 0, 3 + (bleed * 2), bleed, 'F'); // Top bleed
+                pdf.rect(0, 0, bleed, 4 + (bleed * 2), 'F'); // Left bleed  
+                pdf.rect(3 + bleed, 0, bleed, 4 + (bleed * 2), 'F'); // Right bleed
+                pdf.rect(0, 4 + bleed, 3 + (bleed * 2), bleed, 'F'); // Bottom bleed
+                
+                // Re-add the image on top
+                pdf.addImage(imgData, 'PNG', bleed, bleed, 4, 3);
             }
-            
-            // Position image maintaining aspect ratio
-            pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth, imgHeight);
             
             // Add crop marks
             addCropMarks(pdf, bleed);
