@@ -1333,7 +1333,7 @@
             // Position image in center of PDF (with bleed margins)
             pdf.addImage(imgData, 'PNG', bleed, bleed, 4, 3);
             
-            // Manually extend the top color bar to bleed area
+            // Manually extend the top color bar to bleed area (only top row height)
             const currentDish = filteredDishes[currentLabelIndex];
             if (currentDish && currentDish.Color) {
                 const colorMapping = {
@@ -1345,12 +1345,14 @@
                 };
                 const brandColor = colorMapping[currentDish.Color] || '#444E20';
                 
-                // Fill bleed area with brand color
+                // Calculate top row height (20% of label height)
+                const topRowHeight = 3 * 0.2; // 20% of 3 inches
+                
+                // Fill only the top bleed area with brand color
                 pdf.setFillColor(brandColor);
                 pdf.rect(0, 0, 3 + (bleed * 2), bleed, 'F'); // Top bleed
-                pdf.rect(0, 0, bleed, 4 + (bleed * 2), 'F'); // Left bleed  
-                pdf.rect(3 + bleed, 0, bleed, 4 + (bleed * 2), 'F'); // Right bleed
-                pdf.rect(0, 4 + bleed, 3 + (bleed * 2), bleed, 'F'); // Bottom bleed
+                pdf.rect(0, 0, bleed, topRowHeight + bleed, 'F'); // Left bleed (only to top row)
+                pdf.rect(3 + bleed, 0, bleed, topRowHeight + bleed, 'F'); // Right bleed (only to top row)
                 
                 // Re-add the image on top
                 pdf.addImage(imgData, 'PNG', bleed, bleed, 4, 3);
