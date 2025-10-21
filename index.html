@@ -1335,8 +1335,31 @@
             });
             
             const imgData = canvas.toDataURL('image/png');
-            // Position image to fill the entire PDF including bleed
-            pdf.addImage(imgData, 'PNG', 0, 0, 3 + (bleed * 2), 4 + (bleed * 2));
+            
+            // Calculate proper dimensions maintaining aspect ratio
+            const pdfWidth = 3 + (bleed * 2);
+            const pdfHeight = 4 + (bleed * 2);
+            const canvasAspectRatio = canvas.width / canvas.height;
+            const pdfAspectRatio = pdfWidth / pdfHeight;
+            
+            let imgWidth, imgHeight, imgX, imgY;
+            
+            if (canvasAspectRatio > pdfAspectRatio) {
+                // Canvas is wider than PDF, fit to width
+                imgWidth = pdfWidth;
+                imgHeight = pdfWidth / canvasAspectRatio;
+                imgX = 0;
+                imgY = (pdfHeight - imgHeight) / 2;
+            } else {
+                // Canvas is taller than PDF, fit to height
+                imgHeight = pdfHeight;
+                imgWidth = pdfHeight * canvasAspectRatio;
+                imgX = (pdfWidth - imgWidth) / 2;
+                imgY = 0;
+            }
+            
+            // Position image maintaining aspect ratio
+            pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth, imgHeight);
             
             // Add crop marks
             addCropMarks(pdf, bleed);
