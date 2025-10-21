@@ -1334,9 +1334,6 @@
             // This creates a clean white bleed area, which is professional and common
             pdf.addImage(imgData, 'PNG', bleed, bleed, 4, 3);
             
-            // Add crop marks
-            addCropMarks(pdf, bleed);
-            
             // Restore original state
             filteredDishes[currentLabelIndex] = originalDish;
             currentLabelIndex = originalIndex;
