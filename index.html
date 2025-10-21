@@ -1312,16 +1312,22 @@
             const { jsPDF } = window.jspdf;
             const label = document.getElementById('labelPreview');
             
-            // Generate canvas from HTML
+            // Generate canvas from HTML including bleed area
+            const bleed = 0.125; // 1/8" bleed
+            const bleedPixels = bleed * 96; // Convert inches to pixels (96 DPI)
+            
             const canvas = await html2canvas(label, {
                 scale: 3, // Higher scale for better quality
                 useCORS: true,
                 logging: false,
-                backgroundColor: '#ffffff'
+                backgroundColor: '#ffffff',
+                width: label.offsetWidth + (bleedPixels * 2),
+                height: label.offsetHeight + (bleedPixels * 2),
+                x: -bleedPixels,
+                y: -bleedPixels
             });
             
             // Create PDF with bleed area (trim + bleed on all sides)
-            const bleed = 0.125; // 1/8" bleed
             const pdf = new jsPDF({
                 orientation: 'landscape',
                 unit: 'in',
@@ -1329,8 +1335,8 @@
             });
             
             const imgData = canvas.toDataURL('image/png');
-            // Position image to account for bleed area
-            pdf.addImage(imgData, 'PNG', bleed, bleed, 4, 3);
+            // Position image to fill the entire PDF including bleed
+            pdf.addImage(imgData, 'PNG', 0, 0, 3 + (bleed * 2), 4 + (bleed * 2));
             
             // Add crop marks
             addCropMarks(pdf, bleed);
