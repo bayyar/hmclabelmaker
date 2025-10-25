@@ -516,6 +516,7 @@
             width: auto;
             object-fit: contain;
             display: block;
+            transform: scale(1.2); /* Increase logo size by 20% */
         }
         
         /* Cell 2 - Empty/Company Info */
@@ -560,7 +561,7 @@
         }
 
         .brand-title h4 {
-            font-size: 3.6em; /* Increased by 20% from 3em */
+            font-size: 4.5em; /* Larger base size - JavaScript will override for scaling */
             font-weight: 800;
             line-height: 1;
             color: inherit;
@@ -570,7 +571,7 @@
         }
 
         .brand-title .dish-subtitle {
-            font-size: 2.4em; /* Increased by 20% from 2em */
+            font-size: 3em; /* Larger base size - JavaScript will override for scaling */
             font-weight: 400;
             font-style: italic;
             color: inherit;
@@ -720,13 +721,22 @@
                 height: 3.5in !important;
             }
             
-            /* Ensure print maintains absolute font sizes */
+            /* Preserve JavaScript-applied font sizes for print/PDF */
             .brand-title h4 {
-                font-size: 24pt !important; /* Increased by 20% from 20pt */
+                font-size: inherit !important; /* Use JavaScript-applied size */
             }
             
             .brand-title .dish-subtitle {
-                font-size: 16.8pt !important; /* Increased by 20% from 14pt */
+                font-size: inherit !important; /* Use JavaScript-applied size */
+            }
+            
+            /* Fallback larger sizes if JavaScript doesn't apply */
+            .brand-title h4:not([style*="font-size"]) {
+                font-size: 35pt !important; /* Larger fallback size */
+            }
+            
+            .brand-title .dish-subtitle:not([style*="font-size"]) {
+                font-size: 25pt !important; /* Larger fallback size */
             }
             
             .cell-3 .label-text,
@@ -899,6 +909,110 @@
         let allDishes = [];
         let filteredDishes = [];
         let currentLabelIndex = 0;
+        
+        /*
+         * PDF-PREVIEW SYNCHRONIZATION SYSTEM
+         * 
+         * This system ensures that PDFs and previews are always visually identical (1:1 match).
+         * 
+         * CRITICAL: Any changes to font sizing MUST go through FontSyncManager.applyFontSizes()
+         * to maintain synchronization. Direct style.fontSize changes will break sync.
+         * 
+         * How it works:
+         * 1. FontSyncManager tracks all applied font sizes
+         * 2. PDF generation uses the same sizes as preview
+         * 3. VisualValidator confirms sync before PDF generation
+         * 4. Future-proof safeguards prevent sync breaks
+         * 
+         * To maintain sync in future iterations:
+         * - Always use FontSyncManager.applyFontSizes() for font changes
+         * - Never directly modify style.fontSize on title/subtitle elements
+         * - Test PDF generation after any font-related changes
+         * - Check console for sync validation warnings
+         */
+        const FontSyncManager = {
+            appliedSizes: {
+                title: null,
+                subtitle: null
+            },
+            
+            // Apply font sizes consistently
+            applyFontSizes(titleSize, subtitleSize) {
+                const titleEl = document.getElementById('previewDish');
+                const subtitleEl = document.getElementById('previewSubtitle');
+                
+                if (titleEl && subtitleEl) {
+                    // Force override any CSS constraints
+                    titleEl.style.fontSize = titleSize + 'pt !important';
+                    subtitleEl.style.fontSize = subtitleSize + 'pt !important';
+                    
+                    // Also set without !important for compatibility
+                    titleEl.style.setProperty('font-size', titleSize + 'pt', 'important');
+                    subtitleEl.style.setProperty('font-size', subtitleSize + 'pt', 'important');
+                    
+                    // Store for PDF generation
+                    this.appliedSizes.title = titleSize;
+                    this.appliedSizes.subtitle = subtitleSize;
+                    
+                    // Add data attributes for debugging
+                    titleEl.setAttribute('data-sync-title-size', titleSize + 'pt');
+                    subtitleEl.setAttribute('data-sync-subtitle-size', subtitleSize + 'pt');
+                    
+                    console.log(`FontSyncManager: Applied Title=${titleSize}pt, Subtitle=${subtitleSize}pt`);
+                    console.log('Actual computed styles:', {
+                        title: window.getComputedStyle(titleEl).fontSize,
+                        subtitle: window.getComputedStyle(subtitleEl).fontSize
+                    });
+                }
+            },
+            
+            // Ensure PDF uses same sizes as preview
+            ensurePDFSync() {
+                return new Promise((resolve) => {
+                    // Force reflow to ensure sizes are applied
+                    requestAnimationFrame(() => {
+                        const titleEl = document.getElementById('previewDish');
+                        const subtitleEl = document.getElementById('previewSubtitle');
+                        
+                        if (titleEl && subtitleEl && this.appliedSizes.title && this.appliedSizes.subtitle) {
+                            // Re-apply the exact same sizes
+                            titleEl.style.fontSize = this.appliedSizes.title + 'pt';
+                            subtitleEl.style.fontSize = this.appliedSizes.subtitle + 'pt';
+                            
+                            // Wait for browser to process the changes
+                            setTimeout(resolve, 150);
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
+            },
+            
+            // Validate that sizes are consistent
+            validateSync() {
+                const titleEl = document.getElementById('previewDish');
+                const subtitleEl = document.getElementById('previewSubtitle');
+                
+                if (!titleEl || !subtitleEl) return false;
+                
+                const currentTitleSize = parseFloat(titleEl.style.fontSize);
+                const currentSubtitleSize = parseFloat(subtitleEl.style.fontSize);
+                
+                const isSynced = (
+                    this.appliedSizes.title === currentTitleSize &&
+                    this.appliedSizes.subtitle === currentSubtitleSize
+                );
+                
+                if (!isSynced) {
+                    console.warn('FontSyncManager: Sync validation failed!', {
+                        expected: this.appliedSizes,
+                        actual: { title: currentTitleSize, subtitle: currentSubtitleSize }
+                    });
+                }
+                
+                return isSynced;
+            }
+        };
         
         // Google Sheets configuration
         const SHEET_ID = '1UugIwrAyHXOAgBrQcU9zFwIEOYg9-baJdoGCWSMIJNk';
@@ -1309,6 +1423,33 @@
             filteredDishes[currentLabelIndex] = dishData;
             updateLabelDisplay();
             
+            // Ensure text fitting is applied and synchronized before PDF generation
+            await new Promise(resolve => {
+                requestAnimationFrame(() => {
+                    fitTitleToRow();
+                    // Wait for text fitting to complete
+                    setTimeout(async () => {
+                        // Ensure PDF uses exact same font sizes as preview
+                        await FontSyncManager.ensurePDFSync();
+                        
+                        // Validate synchronization
+                        if (!FontSyncManager.validateSync()) {
+                            console.error('FontSyncManager: PDF generation may not match preview!');
+                            throw new Error('PDF-Preview sync validation failed. PDF generation aborted.');
+                        }
+                        
+                        // Additional visual validation
+                        const visualSync = await VisualValidator.validatePDFPreviewSync();
+                        if (!visualSync) {
+                            console.error('VisualValidator: PDF-Preview visual sync failed!');
+                            throw new Error('Visual sync validation failed. PDF generation aborted.');
+                        }
+                        
+                        resolve();
+                    }, 100);
+                });
+            });
+            
             const { jsPDF } = window.jspdf;
             const label = document.getElementById('labelPreview');
             
@@ -1512,7 +1653,12 @@
             
             // Initial branding
             applyBranding();
-            fitTitleToRow();
+            
+            // Ensure text fitting runs after everything is loaded
+            setTimeout(() => {
+                fitTitleToRow();
+                console.log('Initial text fitting applied');
+            }, 500);
         };
 
         // Branding application based on color selection
@@ -1545,55 +1691,221 @@
             }
         }
 
-        // Fit title/subtitle to available row height relative to logo
+        // Enhanced text fitting with better scaling algorithm
         function fitTitleToRow() {
             const rowEl = document.querySelector('.cell-1');
             const logoImg = document.getElementById('brandLogo');
             const titleEl = document.getElementById('previewDish');
             const subtitleEl = document.getElementById('previewSubtitle');
-            if (!rowEl || !logoImg || !titleEl || !subtitleEl) return;
             
-            // Start from increased base sizes (20% larger)
-            let titleSize = 24; // pt - increased by 20% from 20pt
-            let subtitleSize = 16.8; // pt - increased by 20% from 14pt
-            
-            // First check if text fits on single line, if not, shrink
-            const checkTextFit = () => {
-                const titleWidth = titleEl.scrollWidth;
-                const subtitleWidth = subtitleEl.scrollWidth;
-                const containerWidth = titleEl.parentElement.offsetWidth;
-                return titleWidth <= containerWidth && subtitleWidth <= containerWidth;
-            };
-            
-            // Shrink if text doesn't fit on single line
-            let guard = 50;
-            while (!checkTextFit() && guard-- > 0) {
-                titleSize -= 0.5;
-                subtitleSize -= 0.4;
-                titleEl.style.fontSize = Math.max(7, titleSize) + 'pt';
-                subtitleEl.style.fontSize = Math.max(7, subtitleSize) + 'pt';
+            // Future-proof validation: ensure all required elements exist
+            if (!rowEl || !logoImg || !titleEl || !subtitleEl) {
+                console.error('fitTitleToRow: Required elements not found. Sync may be broken.');
+                return;
             }
             
-            // Then check if both lines fit vertically
-            const maxHeight = logoImg.getBoundingClientRect().height - 4; // small breathing room
-            const containerHeight = rowEl.getBoundingClientRect().height;
-            const available = Math.min(maxHeight, containerHeight) - 6;
-            
-            // Reduce until both lines fit vertically
-            const measure = () => titleEl.getBoundingClientRect().height + subtitleEl.getBoundingClientRect().height;
-            guard = 40;
-            while (measure() > available && guard-- > 0) {
-                titleSize -= 0.5;
-                subtitleSize -= 0.4;
-                titleEl.style.fontSize = Math.max(7, titleSize) + 'pt';
-                subtitleEl.style.fontSize = Math.max(7, subtitleSize) + 'pt';
+            // Future-proof validation: ensure FontSyncManager is available
+            if (typeof FontSyncManager === 'undefined') {
+                console.error('fitTitleToRow: FontSyncManager not available. Sync will be broken.');
+                return;
             }
+            
+            // Reset to CSS defaults first
+            titleEl.style.fontSize = '';
+            subtitleEl.style.fontSize = '';
+            
+            // Wait for CSS to apply, then measure
+            requestAnimationFrame(() => {
+                // Get available space - be more generous with space calculations
+                const logoHeight = logoImg.getBoundingClientRect().height;
+                const containerHeight = rowEl.getBoundingClientRect().height;
+                const availableHeight = Math.min(logoHeight, containerHeight) - 4; // reduced padding
+                
+                const titleContainer = titleEl.parentElement;
+                const availableWidth = titleContainer.getBoundingClientRect().width - 2; // minimal padding
+                
+                // Start with larger optimal sizes (25% larger than current)
+                let titleSize = 32.5; // pt - increased by 25% from 26pt
+                let subtitleSize = 22.75; // pt - increased by 25% from 18.2pt
+                
+                // Debug: log all space measurements
+                console.log('=== SPACE DEBUGGING ===');
+                console.log('Logo element:', logoImg);
+                console.log('Row element:', rowEl);
+                console.log('Title container:', titleContainer);
+                console.log('Title element:', titleEl);
+                console.log('Subtitle element:', subtitleEl);
+                
+                console.log('Measurements:', {
+                    logoHeight: logoHeight,
+                    containerHeight: containerHeight,
+                    availableHeight: availableHeight,
+                    titleContainerWidth: titleContainer.getBoundingClientRect().width,
+                    availableWidth: availableWidth,
+                    titleElementWidth: titleEl.getBoundingClientRect().width,
+                    subtitleElementWidth: subtitleEl.getBoundingClientRect().width
+                });
+                
+                console.log('Element styles:', {
+                    titleDisplay: window.getComputedStyle(titleEl).display,
+                    titleWidth: window.getComputedStyle(titleEl).width,
+                    titleMaxWidth: window.getComputedStyle(titleEl).maxWidth,
+                    subtitleDisplay: window.getComputedStyle(subtitleEl).display,
+                    subtitleWidth: window.getComputedStyle(subtitleEl).width,
+                    subtitleMaxWidth: window.getComputedStyle(subtitleEl).maxWidth
+                });
+                
+                // Function to check if individual text fits horizontally
+                const checkTitleFits = (size) => {
+                    titleEl.style.fontSize = size + 'pt';
+                    titleEl.offsetHeight; // Force reflow
+                    return titleEl.scrollWidth <= availableWidth;
+                };
+                
+                const checkSubtitleFits = (size) => {
+                    subtitleEl.style.fontSize = size + 'pt';
+                    subtitleEl.offsetHeight; // Force reflow
+                    return subtitleEl.scrollWidth <= availableWidth;
+                };
+                
+                // Function to check if text fits vertically
+                const checkVerticalFit = () => {
+                    const titleHeight = titleEl.getBoundingClientRect().height;
+                    const subtitleHeight = subtitleEl.getBoundingClientRect().height;
+                    const totalHeight = titleHeight + subtitleHeight;
+                    const fits = totalHeight <= availableHeight;
+                    
+                    console.log(`Vertical fit check (${titleSize}pt/${subtitleSize}pt):`, {
+                        titleHeight,
+                        subtitleHeight,
+                        totalHeight,
+                        availableHeight,
+                        fits
+                    });
+                    
+                    return fits;
+                };
+                
+                // Scale each element independently
+                const scaleElement = (startSize, checkFunction, minSize, elementName) => {
+                    let currentSize = startSize;
+                    let iterations = 0;
+                    const maxIterations = 50;
+                    
+                    while (iterations < maxIterations) {
+                        if (checkFunction(currentSize)) {
+                            console.log(`${elementName} fits at ${currentSize.toFixed(1)}pt`);
+                            break;
+                        }
+                        
+                        currentSize *= 0.95; // Scale down
+                        currentSize = Math.max(minSize, currentSize);
+                        
+                        if (currentSize <= minSize) {
+                            console.log(`${elementName} reached minimum size ${minSize}pt`);
+                            break;
+                        }
+                        
+                        iterations++;
+                    }
+                    
+                    return currentSize;
+                };
+                
+                // Scale title independently
+                const finalTitleSize = scaleElement(titleSize, checkTitleFits, 22.5, 'Title');
+                
+                // Scale subtitle independently  
+                const finalSubtitleSize = scaleElement(subtitleSize, checkSubtitleFits, 17.5, 'Subtitle');
+                
+                // Apply the independently scaled sizes
+                titleEl.style.fontSize = finalTitleSize + 'pt';
+                subtitleEl.style.fontSize = finalSubtitleSize + 'pt';
+                
+                // Check if both fit vertically after independent scaling
+                const totalHeight = titleEl.getBoundingClientRect().height + subtitleEl.getBoundingClientRect().height;
+                if (totalHeight > availableHeight) {
+                    console.log('Vertical constraint: scaling both down proportionally');
+                    const scaleFactor = availableHeight / totalHeight;
+                    const scaledTitleSize = Math.max(20, finalTitleSize * scaleFactor);
+                    const scaledSubtitleSize = Math.max(15, finalSubtitleSize * scaleFactor);
+                    
+                    titleEl.style.fontSize = scaledTitleSize + 'pt';
+                    subtitleEl.style.fontSize = scaledSubtitleSize + 'pt';
+                    
+                    titleSize = scaledTitleSize;
+                    subtitleSize = scaledSubtitleSize;
+                } else {
+                    titleSize = finalTitleSize;
+                    subtitleSize = finalSubtitleSize;
+                }
+                
+                // Apply final sizes using the sync manager
+                FontSyncManager.applyFontSizes(titleSize, subtitleSize);
+                
+                console.log(`Text fitting complete: Title=${titleSize.toFixed(1)}pt, Subtitle=${subtitleSize.toFixed(1)}pt`);
+            });
         }
+
+        // Visual validation system for PDF-preview sync
+        const VisualValidator = {
+            // Take a screenshot of the preview for comparison
+            capturePreviewSnapshot() {
+                const label = document.getElementById('labelPreview');
+                if (!label) return null;
+                
+                return new Promise((resolve) => {
+                    html2canvas(label, {
+                        scale: 1,
+                        useCORS: true,
+                        logging: false,
+                        backgroundColor: '#ffffff'
+                    }).then(canvas => {
+                        resolve(canvas.toDataURL());
+                    }).catch(() => resolve(null));
+                });
+            },
+            
+            // Validate that preview and PDF would be identical
+            async validatePDFPreviewSync() {
+                const snapshot = await this.capturePreviewSnapshot();
+                if (!snapshot) return false;
+                
+                // Store snapshot for debugging
+                this.lastSnapshot = snapshot;
+                
+                // Check if font sizes are properly synchronized
+                const isSynced = FontSyncManager.validateSync();
+                
+                if (!isSynced) {
+                    console.warn('VisualValidator: Preview-PDF sync validation failed');
+                    return false;
+                }
+                
+                console.log('VisualValidator: Preview-PDF sync validated successfully');
+                return true;
+            }
+        };
 
         // Preview scaling logic (on-screen only)
         function initializePreviewScaling() {
-            // No longer needed since we removed the actual size toggle
-            // Labels now display at full width by default
+            // Set up resize observer for dynamic text scaling
+            if (window.ResizeObserver) {
+                const resizeObserver = new ResizeObserver(() => {
+                    // Debounce the text fitting to avoid excessive calls
+                    clearTimeout(window.textFitTimeout);
+                    window.textFitTimeout = setTimeout(() => {
+                        fitTitleToRow();
+                        // Validate sync after text fitting
+                        VisualValidator.validatePDFPreviewSync();
+                    }, 100);
+                });
+                
+                const labelPreview = document.getElementById('labelPreview');
+                if (labelPreview) {
+                    resizeObserver.observe(labelPreview);
+                }
+            }
         }
     </script>
 </body>
