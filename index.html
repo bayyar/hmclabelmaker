@@ -1798,10 +1798,10 @@
                             break;
                         }
                         
-                        currentSize *= 0.95; // Scale down
+                        currentSize *= 0.90; // Scale down by 10% per iteration (faster scaling)
                         currentSize = Math.max(minSize, currentSize);
                         
-                        if (currentSize <= minSize) {
+                        if (Math.abs(currentSize - minSize) < 0.1) {
                             console.log(`${elementName} reached minimum size ${minSize}pt`);
                             break;
                         }
