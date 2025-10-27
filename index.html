@@ -226,6 +226,55 @@
             height: auto; /* Override fixed height for textarea */
         }
         
+        .rotation-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 44px;
+        }
+        
+        .rotation-btn {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            height: 44px;
+            display: inline-flex;
+            align-items: center;
+            box-sizing: border-box;
+            width: auto;
+            min-width: auto;
+        }
+        
+        .rotation-btn:hover {
+            background: #e5e7eb;
+            border-color: #9ca3af;
+        }
+        
+        .rotation-btn.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        
+        .rotation-btn.active:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+        
+        .rotation-btn:disabled {
+            background: #f9fafb;
+            color: #d1d5db;
+            cursor: not-allowed;
+            border-color: #e5e7eb;
+        }
+        
         .button-group {
             display: flex;
             flex-direction: column;
@@ -652,13 +701,13 @@
             border-top: 1px solid #ddd;
             color: #444;
             font-weight: 400;
-            font-size: 1em; /* Match parent font size (7pt) to match ingredients */
+            font-size: 0.85em; /* Slightly smaller than instructions/ingredients */
         }
         
         .company-name {
             font-weight: 600;
             margin-bottom: 2px;
-            font-size: 1em; /* Match parent font size (7pt) to match ingredients */
+            font-size: 0.85em; /* Slightly smaller than instructions/ingredients */
         }
         
         /* Cells 7-8 - Heating Instructions */
@@ -754,7 +803,7 @@
             
             .company-info,
             .company-name {
-                font-size: 7pt !important; /* Company info uses 7pt font to match ingredients */
+                font-size: 6pt !important;
             }
             
             .cell-7-8 {
@@ -872,9 +921,9 @@
                 </div>
                 <div class="form-group">
                     <label for="rotationSelect">Rotation</label>
-                    <select id="rotationSelect" disabled>
-                        <option value="">Select Rotation</option>
-                    </select>
+                    <div class="rotation-buttons" id="rotationButtons">
+                        <!-- Buttons will be populated dynamically -->
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="bestBy">Best By Date</label>
@@ -1182,9 +1231,9 @@
             });
         }
         
-        // Populate rotation dropdown based on selected season
+        // Populate rotation buttons based on selected season
         function populateRotationDropdown(season) {
-            const rotationSelect = document.getElementById('rotationSelect');
+            const rotationButtons = document.getElementById('rotationButtons');
             
             // Get all rotations
             const allRotations = [...new Set(allDishes
@@ -1198,25 +1247,66 @@
             // Check if staples exist for this season
             const hasStaples = allRotations.includes('Staple');
             
-            rotationSelect.innerHTML = '<option value="">Select Rotation</option>';
+            rotationButtons.innerHTML = '';
             
-            // Add staple option first if staples exist for this season
+            // Add staple button first if staples exist for this season
             if (hasStaples) {
-                const stapleOption = document.createElement('option');
-                stapleOption.value = 'Staple';
-                stapleOption.textContent = 'Staple';
-                rotationSelect.appendChild(stapleOption);
+                const stapleBtn = document.createElement('button');
+                stapleBtn.className = 'rotation-btn';
+                stapleBtn.textContent = 'Staple';
+                stapleBtn.dataset.rotation = 'Staple';
+                stapleBtn.onclick = () => selectRotation('Staple', stapleBtn);
+                rotationButtons.appendChild(stapleBtn);
             }
             
-            // Add regular rotations (Staple already filtered out)
+            // Add regular rotation buttons (Staple already filtered out)
             rotations.forEach(rotation => {
-                const option = document.createElement('option');
-                option.value = rotation;
-                option.textContent = rotation;
-                rotationSelect.appendChild(option);
+                const btn = document.createElement('button');
+                btn.className = 'rotation-btn';
+                btn.textContent = rotation;
+                btn.dataset.rotation = rotation;
+                btn.onclick = () => selectRotation(rotation, btn);
+                rotationButtons.appendChild(btn);
+            });
+        }
+        
+        // Select rotation and load labels
+        function selectRotation(rotation, button) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.rotation-btn').forEach(btn => {
+                btn.classList.remove('active');
             });
             
-            rotationSelect.disabled = !season;
+            // Add active class to clicked button
+            button.classList.add('active');
+            button.dataset.rotation = rotation;
+            
+            // Load labels
+            const season = document.getElementById('seasonSelect').value;
+            if (season && rotation) {
+                loadLabelsWithRotation(rotation);
+            }
+        }
+        
+        // Load labels with specified rotation
+        function loadLabelsWithRotation(rotation) {
+            const season = document.getElementById('seasonSelect').value;
+            
+            filteredDishes = filterDishesBySeasonRotation(season, rotation);
+            
+            if (filteredDishes.length === 0) {
+                alert('No dishes found for the selected Season and Rotation');
+                return;
+            }
+            
+            currentLabelIndex = 0;
+            updateLabelDisplay();
+            updateNavigationButtons();
+            document.getElementById('downloadAllBtn').disabled = false;
+            document.getElementById('downloadSingleBtn').disabled = false;
+            
+            // Show label and hide loading indicator
+            showLabel();
         }
         
         // Filter dishes by season and rotation
@@ -1230,7 +1320,8 @@
         // Load labels for selected season and rotation
         function loadLabels() {
             const season = document.getElementById('seasonSelect').value;
-            const rotation = document.getElementById('rotationSelect').value;
+            const activeBtn = document.querySelector('.rotation-btn.active');
+            const rotation = activeBtn ? activeBtn.dataset.rotation || activeBtn.textContent : null;
             
             if (!season || !rotation) {
                 alert('Please select both Season and Rotation');
@@ -1390,7 +1481,8 @@
             try {
                 const zip = new JSZip();
                 const season = document.getElementById('seasonSelect').value;
-                const rotation = document.getElementById('rotationSelect').value;
+                const activeBtn = document.querySelector('.rotation-btn.active');
+                const rotation = activeBtn ? activeBtn.dataset.rotation || activeBtn.textContent : 'Rotation';
                 
                 // Show loading message
                 const downloadBtn = document.getElementById('downloadAllBtn');
@@ -1558,7 +1650,8 @@
             
             // Create filename
             const season = document.getElementById('seasonSelect').value;
-            const rotation = document.getElementById('rotationSelect').value;
+            const activeBtn = document.querySelector('.rotation-btn.active');
+            const rotation = activeBtn ? activeBtn.dataset.rotation || activeBtn.textContent : 'Rotation';
             const dishName = dish['Dish Name'].replace(/[^a-zA-Z0-9]/g, '_');
             const filename = `${season}_${rotation}_${dishName}.pdf`;
             
@@ -1603,10 +1696,13 @@
                     
                     if (rotations.length > 0) {
                         const firstRotation = rotations[0];
-                        document.getElementById('rotationSelect').value = firstRotation;
-                        
-                        // Auto-load the labels
-                        loadLabels();
+                        // Click the first rotation button to load labels
+                        setTimeout(() => {
+                            const firstBtn = document.querySelector('.rotation-btn');
+                            if (firstBtn) {
+                                firstBtn.click();
+                            }
+                        }, 100);
                     }
                 }
             } else {
@@ -1620,20 +1716,10 @@
             const seasonSelect = document.getElementById('seasonSelect');
             seasonSelect.addEventListener('change', (e) => {
                 populateRotationDropdown(e.target.value);
-                // Auto-load labels if rotation is already selected
-                const rotation = document.getElementById('rotationSelect').value;
-                if (rotation) {
-                    loadLabels();
-                }
-            });
-            
-            // Rotation change handler
-            const rotationSelect = document.getElementById('rotationSelect');
-            rotationSelect.addEventListener('change', (e) => {
-                const season = document.getElementById('seasonSelect').value;
-                if (season && e.target.value) {
-                    loadLabels();
-                }
+                // Clear any active rotation buttons when season changes
+                document.querySelectorAll('.rotation-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
             });
             
             // Best By date change handler
