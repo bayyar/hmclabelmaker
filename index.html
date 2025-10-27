@@ -553,29 +553,30 @@
         .brand-title {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             color: #fff;
             flex: 1 1 auto;
             overflow: hidden;
             text-align: left; /* left align the title text */
-            padding: 2px 0; /* Add padding for descenders/ascenders */
+            padding: 0; /* Remove padding to align with top of logo */
         }
 
         .brand-title h4 {
-            font-size: 4.5em; /* Larger base size - JavaScript will override for scaling */
+            font-size: 28pt; /* JavaScript will override for scaling */
             font-weight: 800;
-            line-height: 1.15; /* Allow space for descenders (g, j, p, q, y) */
+            line-height: normal; /* Allow space for descenders (g, j, p, q, y) */
             color: inherit;
             white-space: nowrap;
             overflow: hidden;
+            margin-top: -2px; /* Align top with logo */
             /* Removed text-overflow: ellipsis to allow text scaling */
         }
 
         .brand-title .dish-subtitle {
-            font-size: 3em; /* Larger base size - JavaScript will override for scaling */
+            font-size: 20pt; /* JavaScript will override for scaling */
             font-weight: 400;
             font-style: italic;
-            line-height: 1.15; /* Allow space for descenders */
+            line-height: normal; /* Allow space for descenders */
             color: inherit;
             white-space: nowrap;
             overflow: hidden;
@@ -732,13 +733,13 @@
                 font-size: inherit !important; /* Use JavaScript-applied size */
             }
             
-            /* Fallback larger sizes if JavaScript doesn't apply */
+            /* Fallback sizes if JavaScript doesn't apply */
             .brand-title h4:not([style*="font-size"]) {
-                font-size: 35pt !important; /* Larger fallback size */
+                font-size: 28pt !important;
             }
             
             .brand-title .dish-subtitle:not([style*="font-size"]) {
-                font-size: 25pt !important; /* Larger fallback size */
+                font-size: 20pt !important;
             }
             
             .cell-3 .label-text,
@@ -1184,15 +1185,18 @@
         // Populate rotation dropdown based on selected season
         function populateRotationDropdown(season) {
             const rotationSelect = document.getElementById('rotationSelect');
-            const rotations = [...new Set(allDishes
+            
+            // Get all rotations
+            const allRotations = [...new Set(allDishes
                 .filter(dish => dish.Season === season)
                 .map(dish => dish.Rotation)
                 .filter(Boolean))];
             
-            // Add staple dishes to the rotation list if they exist for this season
-            const hasStaples = allDishes.some(dish => 
-                dish.Season === season && dish.Rotation === 'Staple'
-            );
+            // Filter out 'Staple' from the list that we'll loop through (to avoid adding it twice)
+            const rotations = allRotations.filter(rot => rot !== 'Staple');
+            
+            // Check if staples exist for this season
+            const hasStaples = allRotations.includes('Staple');
             
             rotationSelect.innerHTML = '<option value="">Select Rotation</option>';
             
@@ -1204,7 +1208,7 @@
                 rotationSelect.appendChild(stapleOption);
             }
             
-            // Add regular rotations
+            // Add regular rotations (Staple already filtered out)
             rotations.forEach(rotation => {
                 const option = document.createElement('option');
                 option.value = rotation;
@@ -1218,13 +1222,8 @@
         // Filter dishes by season and rotation
         function filterDishesBySeasonRotation(season, rotation) {
             return allDishes.filter(dish => {
-                // Include dishes that match the exact season and rotation
-                const matchesExact = dish.Season === season && dish.Rotation === rotation;
-                
-                // Include staple dishes for this season in all rotations
-                const isStaple = dish.Season === season && dish.Rotation === 'Staple';
-                
-                return matchesExact || isStaple;
+                // Include dishes that match the exact season and rotation only
+                return dish.Season === season && dish.Rotation === rotation;
             });
         }
         
@@ -1730,9 +1729,9 @@
                 const titleContainer = titleEl.parentElement;
                 const availableWidth = titleContainer.getBoundingClientRect().width - 2; // minimal padding
                 
-                // Start with larger optimal sizes (25% larger than current)
-                let titleSize = 32.5; // pt - increased by 25% from 26pt
-                let subtitleSize = 22.75; // pt - increased by 25% from 18.2pt
+                // Start with optimized default sizes
+                let titleSize = 28; // pt
+                let subtitleSize = 20; // pt
                 
                 // Debug: log all space measurements
                 
@@ -1815,10 +1814,10 @@
                 };
                 
                 // Scale title independently
-                const finalTitleSize = scaleElement(titleSize, checkTitleFits, 22.5, 'Title');
+                const finalTitleSize = scaleElement(titleSize, checkTitleFits, 18, 'Title');
                 
                 // Scale subtitle independently  
-                const finalSubtitleSize = scaleElement(subtitleSize, checkSubtitleFits, 17.5, 'Subtitle');
+                const finalSubtitleSize = scaleElement(subtitleSize, checkSubtitleFits, 13, 'Subtitle');
                 
                 // Apply the independently scaled sizes
                 titleEl.style.fontSize = finalTitleSize + 'pt';
@@ -1828,8 +1827,8 @@
                 const totalHeight = titleEl.getBoundingClientRect().height + subtitleEl.getBoundingClientRect().height;
                 if (totalHeight > availableHeight) {
                     const scaleFactor = availableHeight / totalHeight;
-                    const scaledTitleSize = Math.max(20, finalTitleSize * scaleFactor);
-                    const scaledSubtitleSize = Math.max(15, finalSubtitleSize * scaleFactor);
+                    const scaledTitleSize = Math.max(16, finalTitleSize * scaleFactor);
+                    const scaledSubtitleSize = Math.max(11, finalSubtitleSize * scaleFactor);
                     
                     titleEl.style.fontSize = scaledTitleSize + 'pt';
                     subtitleEl.style.fontSize = scaledSubtitleSize + 'pt';
