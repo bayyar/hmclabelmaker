@@ -558,26 +558,28 @@
             flex: 1 1 auto;
             overflow: hidden;
             text-align: left; /* left align the title text */
+            padding: 2px 0; /* Add padding for descenders/ascenders */
         }
 
         .brand-title h4 {
             font-size: 4.5em; /* Larger base size - JavaScript will override for scaling */
             font-weight: 800;
-            line-height: 1;
+            line-height: 1.15; /* Allow space for descenders (g, j, p, q, y) */
             color: inherit;
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis;
+            /* Removed text-overflow: ellipsis to allow text scaling */
         }
 
         .brand-title .dish-subtitle {
             font-size: 3em; /* Larger base size - JavaScript will override for scaling */
             font-weight: 400;
             font-style: italic;
+            line-height: 1.15; /* Allow space for descenders */
             color: inherit;
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis;
+            /* Removed text-overflow: ellipsis to allow text scaling */
         }
         
         /* Cells 6, 9 - Ingredients and Info (merged) */
@@ -649,13 +651,13 @@
             border-top: 1px solid #ddd;
             color: #444;
             font-weight: 400;
-            font-size: 0.8125em; /* Smaller font size to match 6.5pt print size */
+            font-size: 1em; /* Match parent font size (7pt) to match ingredients */
         }
         
         .company-name {
             font-weight: 600;
             margin-bottom: 2px;
-            font-size: 0.8125em; /* Smaller font size to match 6.5pt print size */
+            font-size: 1em; /* Match parent font size (7pt) to match ingredients */
         }
         
         /* Cells 7-8 - Heating Instructions */
@@ -751,7 +753,7 @@
             
             .company-info,
             .company-name {
-                font-size: 6.5pt !important; /* Company info uses slightly larger 6.5pt font */
+                font-size: 7pt !important; /* Company info uses 7pt font to match ingredients */
             }
             
             .cell-7-8 {
@@ -958,11 +960,6 @@
                     titleEl.setAttribute('data-sync-title-size', titleSize + 'pt');
                     subtitleEl.setAttribute('data-sync-subtitle-size', subtitleSize + 'pt');
                     
-                    console.log(`FontSyncManager: Applied Title=${titleSize}pt, Subtitle=${subtitleSize}pt`);
-                    console.log('Actual computed styles:', {
-                        title: window.getComputedStyle(titleEl).fontSize,
-                        subtitle: window.getComputedStyle(subtitleEl).fontSize
-                    });
                 }
             },
             
@@ -1004,10 +1001,6 @@
                 );
                 
                 if (!isSynced) {
-                    console.warn('FontSyncManager: Sync validation failed!', {
-                        expected: this.appliedSizes,
-                        actual: { title: currentTitleSize, subtitle: currentSubtitleSize }
-                    });
                 }
                 
                 return isSynced;
@@ -1022,30 +1015,22 @@
         // Fetch dishes from Google Sheets
         async function fetchDishesFromSheet() {
             try {
-                console.log('Fetching dishes from Google Sheets...');
                 const response = await fetch(CSV_URL);
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
                 const csvText = await response.text();
-                console.log('CSV text preview:', csvText.substring(0, 200));
                 
                 // Check if we got HTML instead of CSV (redirect page)
                 if (csvText.includes('<HTML>') || csvText.includes('<html>')) {
-                    console.error('Received HTML instead of CSV - sheet may not be public');
                     throw new Error('Sheet is not publicly accessible. Please ensure the sheet is published to the web.');
                 }
                 
                 allDishes = parseCSV(csvText);
-                console.log('Parsed dishes:', allDishes);
                 populateSeasonDropdown();
-                console.log(`Loaded ${allDishes.length} dishes from Google Sheets`);
             } catch (error) {
-                console.error('Error fetching dishes:', error);
                 alert('Error loading dish data from Google Sheets. Please check your internet connection and ensure the sheet is published to the web.');
                 
                 // Load sample data for testing
@@ -1055,7 +1040,6 @@
         
         // Load sample data for testing when Google Sheets is not accessible
         function loadSampleData() {
-            console.log('Loading sample data for testing...');
             allDishes = [
                 {
                     'Season': 'Fall 2024',
@@ -1080,10 +1064,33 @@
                     'Chef Instructions': '1. Preheat oven to 375°F\n2. Remove packaging\n3. Place in oven-safe dish\n4. Bake 20-25 minutes\n5. Let rest 5 minutes',
                     'Fast Instructions': '1. Remove packaging\n2. Microwave on high 3-4 minutes\n3. Let stand 2 minutes\n4. Stir and serve',
                     'Color': 'Orange'
+                },
+                {
+                    'Season': 'Fall 2024',
+                    'Rotation': 'Week 2',
+                    'Dish Name': 'Salmon Teriyaki',
+                    'Dish Subtitle': 'with Jasmine Rice',
+                    'Net Weight': '1.25 lbs',
+                    'Ingredients': 'Wild-caught salmon, teriyaki sauce, jasmine rice, sesame oil, ginger, garlic, soy sauce',
+                    'Allergens': 'Fish, Soy',
+                    'Chef Instructions': '1. Preheat oven to 400°F\n2. Remove packaging\n3. Place salmon on baking sheet\n4. Bake 12-15 minutes\n5. Serve over rice',
+                    'Fast Instructions': '1. Remove packaging\n2. Microwave on high 3-4 minutes\n3. Let stand 2 minutes\n4. Serve',
+                    'Color': 'Blue'
+                },
+                {
+                    'Season': 'Fall 2024',
+                    'Rotation': 'Staple',
+                    'Dish Name': 'Caesar Salad',
+                    'Dish Subtitle': 'Classic Caesar',
+                    'Net Weight': '0.75 lbs',
+                    'Ingredients': 'Romaine lettuce, parmesan cheese, croutons, caesar dressing, anchovies, lemon juice',
+                    'Allergens': 'Dairy, Fish, Gluten',
+                    'Chef Instructions': '1. Keep refrigerated\n2. Toss with dressing before serving\n3. Add croutons and parmesan\n4. Serve immediately',
+                    'Fast Instructions': '1. Keep refrigerated\n2. Toss with dressing before serving\n3. Add croutons and parmesan\n4. Serve immediately',
+                    'Color': 'Green'
                 }
             ];
             populateSeasonDropdown();
-            console.log('Sample data loaded:', allDishes.length, 'dishes');
         }
         
         // Parse CSV text into dish objects
@@ -1115,8 +1122,6 @@
                 lines.push(currentLine.trim());
             }
             
-            console.log('Total lines after proper parsing:', lines.length);
-            console.log('First few lines:', lines.slice(0, 3));
             
             if (lines.length < 2) return [];
             
@@ -1143,27 +1148,22 @@
             };
             
             const headers = parseCSVLine(lines[0]).map(h => h.replace(/^"/, '').replace(/"$/, ''));
-            console.log('Headers:', headers);
             
             const dishes = [];
             
             for (let i = 1; i < lines.length; i++) {
                 const values = parseCSVLine(lines[i]).map(v => v.replace(/^"/, '').replace(/"$/, ''));
-                console.log(`Row ${i} values:`, values);
                 
                 if (values.length >= headers.length) {
                     const dish = {};
                     headers.forEach((header, index) => {
                         dish[header] = values[index] || '';
                     });
-                    console.log('Parsed dish:', dish);
                     dishes.push(dish);
                 } else {
-                    console.log(`Row ${i} has insufficient columns: ${values.length} vs ${headers.length}`);
                 }
             }
             
-            console.log('Final dishes array:', dishes);
             return dishes;
         }
         
@@ -1189,7 +1189,22 @@
                 .map(dish => dish.Rotation)
                 .filter(Boolean))];
             
+            // Add staple dishes to the rotation list if they exist for this season
+            const hasStaples = allDishes.some(dish => 
+                dish.Season === season && dish.Rotation === 'Staple'
+            );
+            
             rotationSelect.innerHTML = '<option value="">Select Rotation</option>';
+            
+            // Add staple option first if staples exist for this season
+            if (hasStaples) {
+                const stapleOption = document.createElement('option');
+                stapleOption.value = 'Staple';
+                stapleOption.textContent = 'Staple';
+                rotationSelect.appendChild(stapleOption);
+            }
+            
+            // Add regular rotations
             rotations.forEach(rotation => {
                 const option = document.createElement('option');
                 option.value = rotation;
@@ -1202,9 +1217,15 @@
         
         // Filter dishes by season and rotation
         function filterDishesBySeasonRotation(season, rotation) {
-            return allDishes.filter(dish => 
-                dish.Season === season && dish.Rotation === rotation
-            );
+            return allDishes.filter(dish => {
+                // Include dishes that match the exact season and rotation
+                const matchesExact = dish.Season === season && dish.Rotation === rotation;
+                
+                // Include staple dishes for this season in all rotations
+                const isStaple = dish.Season === season && dish.Rotation === 'Staple';
+                
+                return matchesExact || isStaple;
+            });
         }
         
         // Load labels for selected season and rotation
@@ -1253,7 +1274,6 @@
             const dish = filteredDishes[currentLabelIndex];
             const bestByDate = document.getElementById('bestBy').value;
             
-            console.log('Updating label display for dish:', dish);
             
             // Update preview elements
             document.getElementById('previewDish').textContent = dish['Dish Name'] || 'Unknown Dish';
@@ -1403,7 +1423,6 @@
                 downloadBtn.disabled = false;
                 
             } catch (error) {
-                console.error('Error generating PDFs:', error);
                 alert('Error generating PDFs. Please try again.');
                 
                 // Reset button
@@ -1434,14 +1453,12 @@
                         
                         // Validate synchronization
                         if (!FontSyncManager.validateSync()) {
-                            console.error('FontSyncManager: PDF generation may not match preview!');
                             throw new Error('PDF-Preview sync validation failed. PDF generation aborted.');
                         }
                         
                         // Additional visual validation
                         const visualSync = await VisualValidator.validatePDFPreviewSync();
                         if (!visualSync) {
-                            console.error('VisualValidator: PDF-Preview visual sync failed!');
                             throw new Error('Visual sync validation failed. PDF generation aborted.');
                         }
                         
@@ -1455,7 +1472,7 @@
             
             // Generate canvas from HTML normally (no bleed capture)
             const canvas = await html2canvas(label, {
-                scale: 3, // Higher scale for better quality
+                scale: 8, // High scale for sharp print quality (8x = 2400 DPI effective)
                 useCORS: true,
                 logging: false,
                 backgroundColor: '#ffffff'
@@ -1559,7 +1576,6 @@
         
         // Initialize with today's dates and load sheet data
         window.onload = async function() {
-            console.log('Starting initialization...');
             
             // Show loading indicator initially
             showLoading();
@@ -1568,20 +1584,15 @@
             document.getElementById('bestBy').value = calculateBestByDate();
             
             // Load dish data from Google Sheets
-            console.log('Loading dish data...');
             await fetchDishesFromSheet();
             
-            console.log('All dishes loaded:', allDishes.length);
             
             // Auto-load first season and rotation if available
             if (allDishes.length > 0) {
-                console.log('Auto-loading first season and rotation...');
                 const seasons = [...new Set(allDishes.map(dish => dish.Season).filter(Boolean))];
-                console.log('Available seasons:', seasons);
                 
                 if (seasons.length > 0) {
                     const firstSeason = seasons[0];
-                    console.log('Selecting first season:', firstSeason);
                     document.getElementById('seasonSelect').value = firstSeason;
                     populateRotationDropdown(firstSeason);
                     
@@ -1590,20 +1601,16 @@
                         .map(dish => dish.Rotation)
                         .filter(Boolean))];
                     
-                    console.log('Available rotations for', firstSeason, ':', rotations);
                     
                     if (rotations.length > 0) {
                         const firstRotation = rotations[0];
-                        console.log('Selecting first rotation:', firstRotation);
                         document.getElementById('rotationSelect').value = firstRotation;
                         
                         // Auto-load the labels
-                        console.log('Auto-loading labels...');
                         loadLabels();
                     }
                 }
             } else {
-                console.log('No dishes available to load');
                 // Keep loading indicator visible if no data
             }
             
@@ -1657,7 +1664,6 @@
             // Ensure text fitting runs after everything is loaded
             setTimeout(() => {
                 fitTitleToRow();
-                console.log('Initial text fitting applied');
             }, 500);
         };
 
@@ -1700,13 +1706,11 @@
             
             // Future-proof validation: ensure all required elements exist
             if (!rowEl || !logoImg || !titleEl || !subtitleEl) {
-                console.error('fitTitleToRow: Required elements not found. Sync may be broken.');
                 return;
             }
             
             // Future-proof validation: ensure FontSyncManager is available
             if (typeof FontSyncManager === 'undefined') {
-                console.error('fitTitleToRow: FontSyncManager not available. Sync will be broken.');
                 return;
             }
             
@@ -1716,10 +1720,12 @@
             
             // Wait for CSS to apply, then measure
             requestAnimationFrame(() => {
-                // Get available space - be more generous with space calculations
+                // Get available space - account for padding and line-height
                 const logoHeight = logoImg.getBoundingClientRect().height;
                 const containerHeight = rowEl.getBoundingClientRect().height;
-                const availableHeight = Math.min(logoHeight, containerHeight) - 4; // reduced padding
+                const brandTitle = titleEl.parentElement; // .brand-title element
+                const titlePadding = brandTitle ? 4 : 0; // 2px top + 2px bottom
+                const availableHeight = Math.min(logoHeight, containerHeight) - titlePadding; // account for container padding
                 
                 const titleContainer = titleEl.parentElement;
                 const availableWidth = titleContainer.getBoundingClientRect().width - 2; // minimal padding
@@ -1729,43 +1735,48 @@
                 let subtitleSize = 22.75; // pt - increased by 25% from 18.2pt
                 
                 // Debug: log all space measurements
-                console.log('=== SPACE DEBUGGING ===');
-                console.log('Logo element:', logoImg);
-                console.log('Row element:', rowEl);
-                console.log('Title container:', titleContainer);
-                console.log('Title element:', titleEl);
-                console.log('Subtitle element:', subtitleEl);
                 
-                console.log('Measurements:', {
-                    logoHeight: logoHeight,
-                    containerHeight: containerHeight,
-                    availableHeight: availableHeight,
-                    titleContainerWidth: titleContainer.getBoundingClientRect().width,
-                    availableWidth: availableWidth,
-                    titleElementWidth: titleEl.getBoundingClientRect().width,
-                    subtitleElementWidth: subtitleEl.getBoundingClientRect().width
-                });
                 
-                console.log('Element styles:', {
-                    titleDisplay: window.getComputedStyle(titleEl).display,
-                    titleWidth: window.getComputedStyle(titleEl).width,
-                    titleMaxWidth: window.getComputedStyle(titleEl).maxWidth,
-                    subtitleDisplay: window.getComputedStyle(subtitleEl).display,
-                    subtitleWidth: window.getComputedStyle(subtitleEl).width,
-                    subtitleMaxWidth: window.getComputedStyle(subtitleEl).maxWidth
-                });
+                
+                // Create a temporary measurement element
+                const createMeasurer = () => {
+                    const measurer = document.createElement('div');
+                    measurer.style.position = 'absolute';
+                    measurer.style.visibility = 'hidden';
+                    measurer.style.whiteSpace = 'nowrap';
+                    measurer.style.height = 'auto';
+                    measurer.style.width = 'auto';
+                    measurer.style.overflow = 'visible';
+                    document.body.appendChild(measurer);
+                    return measurer;
+                };
+                
+                const removeMeasurer = (measurer) => {
+                    document.body.removeChild(measurer);
+                };
                 
                 // Function to check if individual text fits horizontally
                 const checkTitleFits = (size) => {
-                    titleEl.style.fontSize = size + 'pt';
-                    titleEl.offsetHeight; // Force reflow
-                    return titleEl.scrollWidth <= availableWidth;
+                    const measurer = createMeasurer();
+                    measurer.style.fontSize = size + 'pt';
+                    measurer.style.fontWeight = titleEl.style.fontWeight || '800';
+                    measurer.textContent = titleEl.textContent;
+                    
+                    const textWidth = measurer.offsetWidth;
+                    removeMeasurer(measurer);
+                    return textWidth <= availableWidth;
                 };
                 
                 const checkSubtitleFits = (size) => {
-                    subtitleEl.style.fontSize = size + 'pt';
-                    subtitleEl.offsetHeight; // Force reflow
-                    return subtitleEl.scrollWidth <= availableWidth;
+                    const measurer = createMeasurer();
+                    measurer.style.fontSize = size + 'pt';
+                    measurer.style.fontStyle = 'italic';
+                    measurer.style.fontWeight = subtitleEl.style.fontWeight || '400';
+                    measurer.textContent = subtitleEl.textContent;
+                    
+                    const textWidth = measurer.offsetWidth;
+                    removeMeasurer(measurer);
+                    return textWidth <= availableWidth;
                 };
                 
                 // Function to check if text fits vertically
@@ -1775,13 +1786,6 @@
                     const totalHeight = titleHeight + subtitleHeight;
                     const fits = totalHeight <= availableHeight;
                     
-                    console.log(`Vertical fit check (${titleSize}pt/${subtitleSize}pt):`, {
-                        titleHeight,
-                        subtitleHeight,
-                        totalHeight,
-                        availableHeight,
-                        fits
-                    });
                     
                     return fits;
                 };
@@ -1794,7 +1798,6 @@
                     
                     while (iterations < maxIterations) {
                         if (checkFunction(currentSize)) {
-                            console.log(`${elementName} fits at ${currentSize.toFixed(1)}pt`);
                             break;
                         }
                         
@@ -1802,7 +1805,6 @@
                         currentSize = Math.max(minSize, currentSize);
                         
                         if (Math.abs(currentSize - minSize) < 0.1) {
-                            console.log(`${elementName} reached minimum size ${minSize}pt`);
                             break;
                         }
                         
@@ -1825,7 +1827,6 @@
                 // Check if both fit vertically after independent scaling
                 const totalHeight = titleEl.getBoundingClientRect().height + subtitleEl.getBoundingClientRect().height;
                 if (totalHeight > availableHeight) {
-                    console.log('Vertical constraint: scaling both down proportionally');
                     const scaleFactor = availableHeight / totalHeight;
                     const scaledTitleSize = Math.max(20, finalTitleSize * scaleFactor);
                     const scaledSubtitleSize = Math.max(15, finalSubtitleSize * scaleFactor);
@@ -1843,7 +1844,6 @@
                 // Apply final sizes using the sync manager
                 FontSyncManager.applyFontSizes(titleSize, subtitleSize);
                 
-                console.log(`Text fitting complete: Title=${titleSize.toFixed(1)}pt, Subtitle=${subtitleSize.toFixed(1)}pt`);
             });
         }
 
@@ -1856,7 +1856,7 @@
                 
                 return new Promise((resolve) => {
                     html2canvas(label, {
-                        scale: 1,
+                        scale: 8, // Match PDF generation scale
                         useCORS: true,
                         logging: false,
                         backgroundColor: '#ffffff'
@@ -1878,11 +1878,9 @@
                 const isSynced = FontSyncManager.validateSync();
                 
                 if (!isSynced) {
-                    console.warn('VisualValidator: Preview-PDF sync validation failed');
                     return false;
                 }
                 
-                console.log('VisualValidator: Preview-PDF sync validated successfully');
                 return true;
             }
         };
