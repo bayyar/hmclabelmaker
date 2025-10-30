@@ -1366,15 +1366,9 @@
             
             const dish = filteredDishes[currentLabelIndex];
             const bestByInput = document.getElementById('bestBy');
-            // Determine expiration window: exact "Yes" -> 3 days, otherwise 5
+            // Determine if dish uses shorter expiration; label will show two days prior if so
             const shorterExpRaw = (dish['Shorter Expiration'] || '').toString().trim();
             const isShorter = shorterExpRaw === 'Yes';
-            const computedBestBy = calculateBestByDate(isShorter ? 3 : 5);
-            
-            // Only auto-set if user hasn't manually edited after load
-            if (!window.__userEditedBestBy) {
-                bestByInput.value = computedBestBy;
-            }
             const bestByDate = bestByInput.value;
             
             // Update shorter-expiration note under the date picker
@@ -1400,7 +1394,7 @@
             document.getElementById('previewDish').textContent = dish['Dish Name'] || 'Unknown Dish';
             document.getElementById('previewSubtitle').textContent = dish['Dish Subtitle'] || '';
             document.getElementById('previewWeight').textContent = dish['Net Wt'] || dish['Net Weight'] || '-';
-            // Compute date shown on the label: for shorter expiration, show two days earlier
+            // Compute date shown on the label: default to picker's date; if shorter, show two days earlier
             let labelDateString = bestByDate;
             if (isShorter && bestByDate) {
                 const [y2, m2, d2] = bestByDate.split('-').map(Number);
