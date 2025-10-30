@@ -1362,7 +1362,17 @@
             if (filteredDishes.length === 0) return;
             
             const dish = filteredDishes[currentLabelIndex];
-            const bestByDate = document.getElementById('bestBy').value;
+            const bestByInput = document.getElementById('bestBy');
+            // Determine expiration window: exact "Yes" -> 3 days, otherwise 5
+            const shorterExpRaw = (dish['Shorter Expiration'] || '').toString().trim();
+            const isShorter = shorterExpRaw === 'Yes';
+            const computedBestBy = calculateBestByDate(isShorter ? 3 : 5);
+            
+            // Only auto-set if user hasn't manually edited after load
+            if (!window.__userEditedBestBy) {
+                bestByInput.value = computedBestBy;
+            }
+            const bestByDate = bestByInput.value;
             
             
             // Update preview elements
@@ -1422,8 +1432,8 @@
             document.getElementById('nextLabel').disabled = currentLabelIndex === filteredDishes.length - 1;
         }
         
-        // Calculate Best By Date: Tuesday 5 days after next Friday
-        function calculateBestByDate() {
+        // Calculate Best By Date (local date math, avoiding timezone shifts)
+        function calculateBestByDate(daysAfterFriday = 5) {
             const today = new Date();
             const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
             
@@ -1435,19 +1445,20 @@
                 daysUntilFriday = 6; // Next Friday is 6 days away
             }
             
-            const nextFriday = new Date(today);
-            nextFriday.setDate(today.getDate() + daysUntilFriday);
+            const nextFriday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + daysUntilFriday);
+            const bestByDate = new Date(nextFriday.getFullYear(), nextFriday.getMonth(), nextFriday.getDate() + daysAfterFriday);
             
-            // Add 5 days to get Tuesday
-            const bestByDate = new Date(nextFriday);
-            bestByDate.setDate(nextFriday.getDate() + 5);
-            
-            return bestByDate.toISOString().split('T')[0];
+            const yyyy = bestByDate.getFullYear();
+            const mm = String(bestByDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(bestByDate.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
         }
         
         function formatDateWithDay(dateString) {
-            if (!dateString) return 'Thu, 10/20/2025';
-            const date = new Date(dateString);
+            if (!dateString) return '';
+            // Parse yyyy-mm-dd as local date to avoid UTC shift
+            const [y, m, d] = dateString.split('-').map(Number);
+            const date = new Date(y, (m || 1) - 1, d || 1);
             const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             const dayName = days[date.getDay()];
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -1495,9 +1506,12 @@
                     const dish = filteredDishes[i];
                     const pdfBlob = await createPDFForDish(dish, bestByDate);
                     
-                    // Create filename
-                    const dishName = dish['Dish Name'].replace(/[^a-zA-Z0-9]/g, '_');
-                    const filename = `${season}_${rotation}_${dishName}.pdf`;
+                    // Create filename: [Name of Dish] - [BTP/Meal]
+                    const dishNameRaw = (dish['Dish Name'] || 'Label').toString().trim();
+                    // Exact match logic: 'By the Pound' === 'Yes' -> BTP; otherwise Meal
+                    const btpMeal = (dish['By the Pound'] || '') === 'Yes' ? 'BTP' : 'Meal';
+                    const sanitized = (str) => str.replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, ' ').trim();
+                    const filename = `${sanitized(dishNameRaw)} - ${sanitized(btpMeal)}.pdf`;
                     
                     zip.file(filename, pdfBlob);
                 }
@@ -1648,12 +1662,12 @@
             const dish = filteredDishes[currentLabelIndex];
             const pdfBlob = await createPDFForDish(dish, bestByDate);
             
-            // Create filename
-            const season = document.getElementById('seasonSelect').value;
-            const activeBtn = document.querySelector('.rotation-btn.active');
-            const rotation = activeBtn ? activeBtn.dataset.rotation || activeBtn.textContent : 'Rotation';
-            const dishName = dish['Dish Name'].replace(/[^a-zA-Z0-9]/g, '_');
-            const filename = `${season}_${rotation}_${dishName}.pdf`;
+            // Create filename: [Name of Dish] - [BTP/Meal]
+            const dishNameRaw = (dish['Dish Name'] || 'Label').toString().trim();
+            // Exact match logic: 'By the Pound' === 'Yes' -> BTP; otherwise Meal
+            const btpMeal = (dish['By the Pound'] || '') === 'Yes' ? 'BTP' : 'Meal';
+            const sanitized = (str) => str.replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, ' ').trim();
+            const filename = `${sanitized(dishNameRaw)} - ${sanitized(btpMeal)}.pdf`;
             
             // Download single PDF
             const url = URL.createObjectURL(pdfBlob);
@@ -1666,14 +1680,14 @@
             URL.revokeObjectURL(url);
         }
         
-        // Initialize with today's dates and load sheet data
+            // Initialize with today's dates and load sheet data
         window.onload = async function() {
             
             // Show loading indicator initially
             showLoading();
             
-            // Set Best By Date to Tuesday 5 days after next Friday
-            document.getElementById('bestBy').value = calculateBestByDate();
+                // Temporary initial Best By; will be adjusted per-dish in updateLabelDisplay()
+                document.getElementById('bestBy').value = calculateBestByDate(5);
             
             // Load dish data from Google Sheets
             await fetchDishesFromSheet();
@@ -1720,11 +1734,15 @@
                 document.querySelectorAll('.rotation-btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
+                // Reset manual edit flag so defaults apply for new selection
+                window.__userEditedBestBy = false;
             });
             
             // Best By date change handler
             const bestByInput = document.getElementById('bestBy');
             bestByInput.addEventListener('change', () => {
+                // Mark that user manually edited date so we don't override on navigation
+                window.__userEditedBestBy = true;
                 if (filteredDishes.length > 0) {
                     updateLabelDisplay();
                 }
