@@ -1532,12 +1532,14 @@
                     const dish = filteredDishes[i];
                     const pdfBlob = await createPDFForDish(dish, bestByDate);
                     
-                    // Create filename: [Name of Dish] - [BTP/Meal]
+                    // Create filename: [Name of Dish] - [Subtitle] - [BTP/Meal]
                     const dishNameRaw = (dish['Dish Name'] || 'Label').toString().trim();
+                    const subtitleRaw = (dish['Dish Subtitle'] || '').toString().trim();
                     // Exact match logic: 'By the Pound' === 'Yes' -> BTP; otherwise Meal
                     const btpMeal = (dish['By the Pound'] || '') === 'Yes' ? 'BTP' : 'Meal';
                     const sanitized = (str) => str.replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, ' ').trim();
-                    const filename = `${sanitized(dishNameRaw)} - ${sanitized(btpMeal)}.pdf`;
+                    const titlePart = subtitleRaw ? `${sanitized(dishNameRaw)} - ${sanitized(subtitleRaw)}` : `${sanitized(dishNameRaw)}`;
+                    const filename = `${titlePart} - ${sanitized(btpMeal)}.pdf`;
                     
                     zip.file(filename, pdfBlob);
                 }
@@ -1688,12 +1690,14 @@
             const dish = filteredDishes[currentLabelIndex];
             const pdfBlob = await createPDFForDish(dish, bestByDate);
             
-            // Create filename: [Name of Dish] - [BTP/Meal]
+            // Create filename: [Name of Dish] - [Subtitle] - [BTP/Meal]
             const dishNameRaw = (dish['Dish Name'] || 'Label').toString().trim();
+            const subtitleRaw = (dish['Dish Subtitle'] || '').toString().trim();
             // Exact match logic: 'By the Pound' === 'Yes' -> BTP; otherwise Meal
             const btpMeal = (dish['By the Pound'] || '') === 'Yes' ? 'BTP' : 'Meal';
             const sanitized = (str) => str.replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, ' ').trim();
-            const filename = `${sanitized(dishNameRaw)} - ${sanitized(btpMeal)}.pdf`;
+            const titlePart = subtitleRaw ? `${sanitized(dishNameRaw)} - ${sanitized(subtitleRaw)}` : `${sanitized(dishNameRaw)}`;
+            const filename = `${titlePart} - ${sanitized(btpMeal)}.pdf`;
             
             // Download single PDF
             const url = URL.createObjectURL(pdfBlob);
@@ -1712,8 +1716,8 @@
             // Show loading indicator initially
             showLoading();
             
-                // Temporary initial Best By; will be adjusted per-dish in updateLabelDisplay()
-                document.getElementById('bestBy').value = calculateBestByDate(5);
+                // Temporary initial Best By (1 day less than prior logic): next Friday + 4 days
+                document.getElementById('bestBy').value = calculateBestByDate(4);
             
             // Load dish data from Google Sheets
             await fetchDishesFromSheet();
