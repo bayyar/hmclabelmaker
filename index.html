@@ -928,6 +928,7 @@
                 <div class="form-group">
                     <label for="bestBy">Best By Date</label>
                     <input type="date" id="bestBy" />
+                    <div id="shorterExpNote" style="display:none; font-size: 12px; color: #6b7280; margin-top: 4px;"></div>
                 </div>
                 
                 <!-- Horizontal separator -->
@@ -1242,7 +1243,9 @@
                 .filter(Boolean))];
             
             // Filter out 'Staple' from the list that we'll loop through (to avoid adding it twice)
-            const rotations = allRotations.filter(rot => rot !== 'Staple');
+            const rotations = allRotations
+                .filter(rot => rot !== 'Staple')
+                .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
             
             // Check if staples exist for this season
             const hasStaples = allRotations.includes('Staple');
@@ -1374,12 +1377,41 @@
             }
             const bestByDate = bestByInput.value;
             
+            // Update shorter-expiration note under the date picker
+            const noteEl = document.getElementById('shorterExpNote');
+            if (noteEl) {
+                if (isShorter && bestByDate) {
+                    const [y, m, d] = bestByDate.split('-').map(Number);
+                    const sel = new Date(y, (m || 1) - 1, d || 1);
+                    const prior = new Date(sel.getFullYear(), sel.getMonth(), sel.getDate() - 2);
+                    const yyyy = prior.getFullYear();
+                    const mm = String(prior.getMonth() + 1).padStart(2, '0');
+                    const dd = String(prior.getDate()).padStart(2, '0');
+                    noteEl.textContent = `Shorter expiration in effect: label shows ${formatDateWithDay(`${yyyy}-${mm}-${dd}`)}`;
+                    noteEl.style.display = 'block';
+                } else {
+                    noteEl.style.display = 'none';
+                    noteEl.textContent = '';
+                }
+            }
+            
             
             // Update preview elements
             document.getElementById('previewDish').textContent = dish['Dish Name'] || 'Unknown Dish';
             document.getElementById('previewSubtitle').textContent = dish['Dish Subtitle'] || '';
             document.getElementById('previewWeight').textContent = dish['Net Wt'] || dish['Net Weight'] || '-';
-            document.getElementById('previewBestBy').textContent = formatDateWithDay(bestByDate);
+            // Compute date shown on the label: for shorter expiration, show two days earlier
+            let labelDateString = bestByDate;
+            if (isShorter && bestByDate) {
+                const [y2, m2, d2] = bestByDate.split('-').map(Number);
+                const base = new Date(y2, (m2 || 1) - 1, d2 || 1);
+                const prior2 = new Date(base.getFullYear(), base.getMonth(), base.getDate() - 2);
+                const yyyy2 = prior2.getFullYear();
+                const mm2 = String(prior2.getMonth() + 1).padStart(2, '0');
+                const dd2 = String(prior2.getDate()).padStart(2, '0');
+                labelDateString = `${yyyy2}-${mm2}-${dd2}`;
+            }
+            document.getElementById('previewBestBy').textContent = formatDateWithDay(labelDateString);
             document.getElementById('previewIngredients').textContent = dish.Ingredients || '-';
             document.getElementById('previewAllergens').textContent = dish.Allergens || 'None';
             document.getElementById('previewChefInstructions').innerHTML = formatInstructions(dish['Chef Instructions'] || '-');
