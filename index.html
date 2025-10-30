@@ -1538,7 +1538,7 @@
                     // Exact match logic: 'By the Pound' === 'Yes' -> BTP; otherwise Meal
                     const btpMeal = (dish['By the Pound'] || '') === 'Yes' ? 'BTP' : 'Meal';
                     const sanitized = (str) => str.replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, ' ').trim();
-                    const titlePart = subtitleRaw ? `${sanitized(dishNameRaw)} - ${sanitized(subtitleRaw)}` : `${sanitized(dishNameRaw)}`;
+                    const titlePart = subtitleRaw ? `${sanitized(dishNameRaw)} ${sanitized(subtitleRaw)}` : `${sanitized(dishNameRaw)}`;
                     const filename = `${titlePart} - ${sanitized(btpMeal)}.pdf`;
                     
                     zip.file(filename, pdfBlob);
@@ -1696,7 +1696,7 @@
             // Exact match logic: 'By the Pound' === 'Yes' -> BTP; otherwise Meal
             const btpMeal = (dish['By the Pound'] || '') === 'Yes' ? 'BTP' : 'Meal';
             const sanitized = (str) => str.replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, ' ').trim();
-            const titlePart = subtitleRaw ? `${sanitized(dishNameRaw)} - ${sanitized(subtitleRaw)}` : `${sanitized(dishNameRaw)}`;
+            const titlePart = subtitleRaw ? `${sanitized(dishNameRaw)} ${sanitized(subtitleRaw)}` : `${sanitized(dishNameRaw)}`;
             const filename = `${titlePart} - ${sanitized(btpMeal)}.pdf`;
             
             // Download single PDF
