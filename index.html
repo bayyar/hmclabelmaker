@@ -728,7 +728,7 @@
             padding: 12px;
             background: transparent; /* Remove gray background */
             overflow: hidden;
-            font-size: 0.875em; /* Ensure consistent base font size */
+            font-size: 0.875em; /* Relative size for preview scaling */
             border: none; /* Remove border */
             border-radius: 0; /* Remove border radius */
             margin: 0; /* Remove margin for proper alignment */
@@ -804,7 +804,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             padding: 12px 8px 8px 8px; /* Match top padding with right column */
-            font-size: 0.875em; /* Match font size with right column */
+            font-size: 0.875em; /* Relative size for preview scaling */
         }
         
         [data-design="original"] .chef-instructions, [data-design="original"] .fast-instructions {
@@ -1164,7 +1164,7 @@
             padding: 12px;
             background: transparent;
             overflow: hidden;
-            font-size: 0.875em;
+            font-size: 1em; /* Larger relative size to match 8pt print (vs 7pt original) */
             border: none;
             border-radius: 0;
             margin: 0;
@@ -1257,7 +1257,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             padding: 12px 8px 8px 8px;
-            font-size: 0.875em;
+            font-size: 1em; /* Larger relative size to match 8pt print (vs 7pt original) */
         }
         
         [data-design="new"] .chef-instructions, [data-design="new"] .fast-instructions {
