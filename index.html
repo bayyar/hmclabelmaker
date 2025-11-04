@@ -917,7 +917,7 @@
             padding: 0;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 32% 32% 36%; /* Narrower ingredients section (was 30% 30% 40%) */
+            grid-template-columns: 1fr 1fr 1fr; /* Equal thirds for each column */
             grid-template-rows: 0.75fr 1.95fr 0.3fr; /* Top row taller, middle content, bottom row (footnote) */
             gap: 0;
             position: relative;
@@ -1292,7 +1292,7 @@
             display: grid;
             grid-template-columns: 1fr 2fr 1fr;
             gap: 12px;
-            padding: 3px 12px; /* Minimal vertical padding for footnote */
+            padding: 6px 0 0 0; /* Only top padding */
             background: white;
             border-top: 1px solid #ddd;
             font-size: 0.875em;
@@ -1308,6 +1308,7 @@
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            padding-left: 12px;
         }
         
         [data-design="new"] .bottom-center-info {
@@ -1322,26 +1323,34 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
+            padding-right: 12px;
         }
         
-        [data-design="new"] .bottom-label {
+        /* All bottom row text is bold for middle section */
+        [data-design="new"] .bottom-center-info .bottom-label,
+        [data-design="new"] .bottom-center-info .bottom-value {
             font-weight: 700;
+            font-size: 0.875em; /* Match address font size */
+        }
+        
+        [data-design="new"] .bottom-company-name {
+            font-weight: 400; /* Not bold */
             font-size: 0.875em;
             margin-bottom: 2px;
         }
         
-        [data-design="new"] .bottom-value {
+        [data-design="new"] .bottom-company-website {
             font-weight: 400;
             font-size: 0.875em;
         }
         
-        [data-design="new"] .bottom-company-name {
-            font-weight: 600;
+        [data-design="new"] .bottom-address-line1 {
+            font-weight: 400;
             font-size: 0.875em;
             margin-bottom: 2px;
         }
         
-        [data-design="new"] .bottom-company-address {
+        [data-design="new"] .bottom-address-line2 {
             font-weight: 400;
             font-size: 0.875em;
         }
@@ -1398,13 +1407,15 @@
             [data-design="new"] .bottom-label,
             [data-design="new"] .bottom-value,
             [data-design="new"] .bottom-company-name,
-            [data-design="new"] .bottom-company-address {
+            [data-design="new"] .bottom-company-website,
+            [data-design="new"] .bottom-address-line1,
+            [data-design="new"] .bottom-address-line2 {
                 font-size: 8pt !important;
             }
         }
     </style>
 </head>
-<body data-design="original">
+<body data-design="new">
     <div class="app-container">
         <div class="app-header">
             <h1>Hudson Meal Co. Label Generator</h1>
@@ -1412,10 +1423,10 @@
                 <div class="design-toggle-container">
                     <span class="design-toggle-label">Design:</span>
                     <label class="design-toggle">
-                        <input type="checkbox" id="designToggle" onchange="switchDesign()">
+                        <input type="checkbox" id="designToggle" onchange="switchDesign()" checked>
                         <span class="design-toggle-slider"></span>
                     </label>
-                    <span class="design-label-text" id="designLabel">Original</span>
+                    <span class="design-label-text" id="designLabel">New</span>
                 </div>
                 <button class="nav-button" onclick="window.open('https://docs.google.com/spreadsheets/d/1UugIwrAyHXOAgBrQcU9zFwIEOYg9-baJdoGCWSMIJNk/edit?gid=0#gid=0', '_blank')">Edit CSV</button>
             </div>
@@ -1504,18 +1515,18 @@
                     </div>
                     
                     <!-- Bottom row - Best By, Company Info, Net Weight (NEW DESIGN ONLY) -->
-                    <div class="cell-bottom-info" style="display: none;">
+                    <div class="cell-bottom-info" style="display: grid;">
                         <div class="bottom-left-info">
-                            <div class="bottom-label">Best By:</div>
-                            <div class="bottom-value" id="previewBestByBottom">-</div>
+                            <div class="bottom-company-name">Hudson Meal Co. LLC</div>
+                            <div class="bottom-company-website">hudsonmealco.com</div>
                         </div>
                         <div class="bottom-center-info">
-                            <div class="bottom-company-name">Hudson Meal Co. LLC (hudsonmealco.com)</div>
-                            <div class="bottom-company-address">86 Broad Street, Kinderhook, NY 12106</div>
+                            <div class="bottom-label" id="previewBestByBottom">Best By: -</div>
+                            <div class="bottom-value" id="previewWeightBottom">Net Weight: -</div>
                         </div>
                         <div class="bottom-right-info">
-                            <div class="bottom-label">Net Weight:</div>
-                            <div class="bottom-value" id="previewWeightBottom">-</div>
+                            <div class="bottom-address-line1">86 Broad Street</div>
+                            <div class="bottom-address-line2">Kinderhook, NY 12106</div>
                         </div>
                     </div>
                     </div>
@@ -1573,6 +1584,40 @@
         let allDishes = [];
         let filteredDishes = [];
         let currentLabelIndex = 0;
+        
+        /*
+         * LABEL STATE PERSISTENCE
+         * 
+         * Saves and restores label selection state across page refreshes
+         */
+        function saveLabelState() {
+            const season = document.getElementById('seasonSelect').value;
+            const activeBtn = document.querySelector('.rotation-btn.active');
+            const rotation = activeBtn ? activeBtn.dataset.rotation || activeBtn.textContent : null;
+            const bestByDate = document.getElementById('bestBy').value;
+            
+            if (season && rotation !== null && filteredDishes.length > 0) {
+                const state = {
+                    season: season,
+                    rotation: rotation,
+                    labelIndex: currentLabelIndex,
+                    bestByDate: bestByDate
+                };
+                localStorage.setItem('hmcLabelState', JSON.stringify(state));
+            }
+        }
+        
+        function loadLabelState() {
+            try {
+                const saved = localStorage.getItem('hmcLabelState');
+                if (saved) {
+                    return JSON.parse(saved);
+                }
+            } catch (e) {
+                console.warn('Failed to load saved label state:', e);
+            }
+            return null;
+        }
         
         /*
          * DESIGN SWITCHING SYSTEM
@@ -1950,7 +1995,7 @@
         }
         
         // Load labels with specified rotation
-        function loadLabelsWithRotation(rotation) {
+        function loadLabelsWithRotation(rotation, labelIndex = 0) {
             const season = document.getElementById('seasonSelect').value;
             
             filteredDishes = filterDishesBySeasonRotation(season, rotation);
@@ -1960,7 +2005,8 @@
                 return;
             }
             
-            currentLabelIndex = 0;
+            // Use provided labelIndex, but ensure it's within bounds
+            currentLabelIndex = Math.max(0, Math.min(labelIndex, filteredDishes.length - 1));
             updateLabelDisplay();
             updateNavigationButtons();
             document.getElementById('downloadAllBtn').disabled = false;
@@ -1968,6 +2014,9 @@
             
             // Show label and hide loading indicator
             showLabel();
+            
+            // Save state after loading labels
+            saveLabelState();
         }
         
         // Filter dishes by season and rotation
@@ -2073,10 +2122,10 @@
             const bestByBottomEl = document.getElementById('previewBestByBottom');
             const weightBottomEl = document.getElementById('previewWeightBottom');
             if (bestByBottomEl) {
-                bestByBottomEl.textContent = formatDateWithDay(labelDateString);
+                bestByBottomEl.textContent = 'Best By: ' + formatDateWithDay(labelDateString);
             }
             if (weightBottomEl) {
-                weightBottomEl.textContent = dish['Net Wt'] || dish['Net Weight'] || '-';
+                weightBottomEl.textContent = 'Net Weight: ' + (dish['Net Wt'] || dish['Net Weight'] || '-');
             }
             
             // Update brand color from CSV Color column
@@ -2109,6 +2158,7 @@
                 currentLabelIndex--;
                 updateLabelDisplay();
                 updateNavigationButtons();
+                saveLabelState();
             }
         }
         
@@ -2117,6 +2167,7 @@
                 currentLabelIndex++;
                 updateLabelDisplay();
                 updateNavigationButtons();
+                saveLabelState();
             }
         }
         
@@ -2391,30 +2442,79 @@
             await fetchDishesFromSheet();
             
             
-            // Auto-load first season and rotation if available
+            // Try to restore saved label state, otherwise auto-load first season and rotation
             if (allDishes.length > 0) {
-                const seasons = [...new Set(allDishes.map(dish => dish.Season).filter(Boolean))];
+                const savedState = loadLabelState();
+                let restored = false;
                 
-                if (seasons.length > 0) {
-                    const firstSeason = seasons[0];
-                    document.getElementById('seasonSelect').value = firstSeason;
-                    populateRotationDropdown(firstSeason);
-                    
+                if (savedState && savedState.season && savedState.rotation) {
+                    // Verify that saved season and rotation still exist
+                    const seasons = [...new Set(allDishes.map(dish => dish.Season).filter(Boolean))];
                     const rotations = [...new Set(allDishes
-                        .filter(dish => dish.Season === firstSeason)
+                        .filter(dish => dish.Season === savedState.season)
                         .map(dish => dish.Rotation)
                         .filter(Boolean))];
                     
-                    
-                    if (rotations.length > 0) {
-                        const firstRotation = rotations[0];
-                        // Click the first rotation button to load labels
+                    if (seasons.includes(savedState.season) && rotations.includes(savedState.rotation)) {
+                        // Restore saved state
+                        document.getElementById('seasonSelect').value = savedState.season;
+                        populateRotationDropdown(savedState.season);
+                        
+                        // Restore Best By date if saved
+                        if (savedState.bestByDate) {
+                            document.getElementById('bestBy').value = savedState.bestByDate;
+                            window.__userEditedBestBy = true;
+                        }
+                        
+                        // Find and activate the rotation button, then load labels with saved index
                         setTimeout(() => {
-                            const firstBtn = document.querySelector('.rotation-btn');
-                            if (firstBtn) {
-                                firstBtn.click();
+                            const rotationBtn = Array.from(document.querySelectorAll('.rotation-btn')).find(
+                                btn => (btn.dataset.rotation || btn.textContent) === savedState.rotation
+                            );
+                            if (rotationBtn) {
+                                // Activate the button visually
+                                document.querySelectorAll('.rotation-btn').forEach(btn => {
+                                    btn.classList.remove('active');
+                                });
+                                rotationBtn.classList.add('active');
+                                rotationBtn.dataset.rotation = savedState.rotation;
+                                
+                                // Load labels directly with saved label index
+                                const savedIndex = savedState.labelIndex !== undefined ? savedState.labelIndex : 0;
+                                loadLabelsWithRotation(savedState.rotation, savedIndex);
+                            } else {
+                                restored = false;
                             }
                         }, 100);
+                        restored = true;
+                    }
+                }
+                
+                // Fall back to auto-load if restoration failed
+                if (!restored) {
+                    const seasons = [...new Set(allDishes.map(dish => dish.Season).filter(Boolean))];
+                    
+                    if (seasons.length > 0) {
+                        const firstSeason = seasons[0];
+                        document.getElementById('seasonSelect').value = firstSeason;
+                        populateRotationDropdown(firstSeason);
+                        
+                        const rotations = [...new Set(allDishes
+                            .filter(dish => dish.Season === firstSeason)
+                            .map(dish => dish.Rotation)
+                            .filter(Boolean))];
+                        
+                        
+                        if (rotations.length > 0) {
+                            const firstRotation = rotations[0];
+                            // Click the first rotation button to load labels
+                            setTimeout(() => {
+                                const firstBtn = document.querySelector('.rotation-btn');
+                                if (firstBtn) {
+                                    firstBtn.click();
+                                }
+                            }, 100);
+                        }
                     }
                 }
             } else {
@@ -2434,6 +2534,8 @@
                 });
                 // Reset manual edit flag so defaults apply for new selection
                 window.__userEditedBestBy = false;
+                // Clear saved state when season changes (rotation is cleared)
+                localStorage.removeItem('hmcLabelState');
             });
             
             // Best By date change handler
@@ -2444,6 +2546,8 @@
                 if (filteredDishes.length > 0) {
                     updateLabelDisplay();
                 }
+                // Save state when date changes
+                saveLabelState();
             });
             
             // Grid toggle handler
