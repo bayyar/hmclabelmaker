@@ -725,7 +725,7 @@
             display: flex;
             flex-direction: column;
             line-height: 1.3;
-            padding: 12px;
+            padding: 12px 12px 0 12px; /* No bottom padding */
             background: transparent; /* Remove gray background */
             overflow: hidden;
             font-size: 0.875em; /* Relative size for preview scaling */
@@ -803,7 +803,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            padding: 12px 8px 8px 8px; /* Match top padding with right column */
+            padding: 12px 8px 0 8px; /* No bottom padding */
             font-size: 0.875em; /* Relative size for preview scaling */
         }
         
@@ -1161,7 +1161,7 @@
             display: flex;
             flex-direction: column;
             line-height: 1.3;
-            padding: 12px;
+            padding: 12px 12px 0 12px; /* No bottom padding */
             background: transparent;
             overflow: hidden;
             font-size: 1em; /* Larger relative size to match 8pt print (vs 7pt original) */
@@ -1256,7 +1256,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            padding: 12px 8px 8px 8px;
+            padding: 12px 8px 0 8px; /* No bottom padding */
             font-size: 1em; /* Larger relative size to match 8pt print (vs 7pt original) */
         }
         
