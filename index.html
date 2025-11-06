@@ -691,7 +691,8 @@
             justify-content: flex-start;
             color: #fff;
             flex: 1 1 auto;
-            overflow: hidden;
+            overflow-x: hidden; /* Only clip horizontal overflow */
+            overflow-y: visible; /* Allow descenders to show */
             text-align: left; /* left align the title text */
             padding: 0; /* Remove padding to align with top of logo */
         }
@@ -699,11 +700,12 @@
         [data-design="original"] .brand-title h4 {
             font-size: 28pt; /* JavaScript will override for scaling */
             font-weight: 800;
-            line-height: normal; /* Allow space for descenders (g, j, p, q, y) */
+            line-height: 1.1; /* Provide space for descenders */
             color: inherit;
             white-space: nowrap;
-            overflow: hidden;
+            overflow: visible; /* Allow descenders to show */
             margin-top: -2px; /* Align top with logo */
+            padding-bottom: 2px; /* Extra space for descenders */
             /* Removed text-overflow: ellipsis to allow text scaling */
         }
 
@@ -711,10 +713,11 @@
             font-size: 20pt; /* JavaScript will override for scaling */
             font-weight: 400;
             font-style: italic;
-            line-height: normal; /* Allow space for descenders */
+            line-height: 1.1; /* Provide space for descenders */
             color: inherit;
             white-space: nowrap;
-            overflow: hidden;
+            overflow: visible; /* Allow descenders to show */
+            padding-bottom: 2px; /* Extra space for descenders */
             /* Removed text-overflow: ellipsis to allow text scaling */
         }
         
@@ -1129,7 +1132,8 @@
             justify-content: flex-start;
             color: #fff;
             flex: 1 1 auto;
-            overflow: hidden;
+            overflow-x: hidden; /* Only clip horizontal overflow */
+            overflow-y: visible; /* Allow descenders to show */
             text-align: left;
             padding: 0;
         }
@@ -1137,21 +1141,23 @@
         [data-design="new"] .brand-title h4 {
             font-size: 28pt; /* JavaScript will override for scaling */
             font-weight: 800;
-            line-height: normal;
+            line-height: 1.1; /* Provide space for descenders */
             color: inherit;
             white-space: nowrap;
-            overflow: hidden;
+            overflow: visible; /* Allow descenders to show */
             margin-top: -2px;
+            padding-bottom: 2px; /* Extra space for descenders */
         }
 
         [data-design="new"] .brand-title .dish-subtitle {
             font-size: 20pt; /* JavaScript will override for scaling */
             font-weight: 400;
             font-style: italic;
-            line-height: normal;
+            line-height: 1.1; /* Provide space for descenders */
             color: inherit;
             white-space: nowrap;
-            overflow: hidden;
+            overflow: visible; /* Allow descenders to show */
+            padding-bottom: 2px; /* Extra space for descenders */
         }
         
         /* Cells 6, 9 - Ingredients and Info (merged) - NEW DESIGN */
@@ -2337,6 +2343,34 @@
                 unit: 'in',
                 format: [3 + (bleed * 2), 4 + (bleed * 2)] // Add bleed to both dimensions
             });
+            
+            // Get brand color and extend top bar to bleed edges
+            // Get color directly from dish data to avoid CSS variable resolution issues
+            const chosen = dishData && dishData.Color ? dishData.Color.toLowerCase() : 'green';
+            const colorMap = {
+                green: '#444E20',
+                orange: '#A15408',
+                gray: '#BDC7C3',
+                red: '#520212',
+                blue: '#003854'
+            };
+            const hexColor = colorMap[chosen] || colorMap.green;
+            
+            // Convert hex to RGB
+            const hex = hexColor.substring(1);
+            const r = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+            
+            // Determine design type and top bar height
+            const design = document.body.getAttribute('data-design') || 'new';
+            const labelHeight = 3; // Label height in inches
+            const topBarHeight = design === 'original' ? labelHeight * 0.2 : labelHeight * 0.25; // 20% or 25%
+            
+            // Draw colored rectangle in bleed area (top, left, right edges)
+            // This extends the top bar color to the bleed edges
+            pdf.setFillColor(r, g, b);
+            pdf.rect(0, 0, 4 + (bleed * 2), topBarHeight + bleed, 'F');
             
             const imgData = canvas.toDataURL('image/png');
             
